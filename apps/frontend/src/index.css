@@ -1,0 +1,49 @@
+@import "tailwindcss";
+
+@theme {
+  /* الهوية الأصلية (اللوجو نفسه فاضل زي ما هو أزرق/فضي) */
+  --color-ink: #0d0f1a;
+  --color-royal: #1b2c52;
+  --color-royal-light: #2f5aa8;
+  --color-accent: #4a97cb;
+  --color-accent-light: #93c6d5;
+  --color-silver: #c9ccd1;
+  --color-silver-light: #e7e8ea;
+  --color-paper: #f6f5f1;
+
+  /* هوية الموقع الجديدة (كحلي + دهبي) المعتمدة دلوقتي */
+  --color-navy: #191c2b;
+  --color-navy-deep: #14161f;
+  --color-gold: #c9a227;
+  --color-gold-dim: #b38d20;
+  --color-paper-alt: #eef0f2;
+  --color-muted: #5b6472;
+
+  --font-display: "Markazi Text", serif;
+  --font-body: "Cairo", sans-serif;
+}
+
+html { scroll-behavior: smooth; }
+body { background-color: var(--color-paper); color: var(--color-ink); font-family: var(--font-body); }
+.font-display { font-family: var(--font-display); }
+
+.beam-divider { position: relative; height: 1px; background: var(--color-silver); }
+.beam-divider::before {
+  content: ""; position: absolute; top: -3px; left: 50%;
+  transform: translateX(-50%) rotate(45deg);
+  width: 7px; height: 7px; background: var(--color-gold);
+}
+
+:focus-visible { outline: 2px solid var(--color-gold); outline-offset: 2px; }
+
+@media (prefers-reduced-motion: reduce) {
+  * { animation-duration: 0.001ms !important; animation-iteration-count: 1 !important; transition-duration: 0.001ms !important; }
+}
+
+@keyframes slideFade {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.slide-fade {
+  animation: slideFade 1s ease-in-out;
+}
