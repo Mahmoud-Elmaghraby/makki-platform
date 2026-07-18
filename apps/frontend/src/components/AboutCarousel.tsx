@@ -20,7 +20,7 @@ const slides: Slide[] = [
     ],
     points: ["فريق متخصص", "متابعة شخصية", "شفافية كاملة"],
     cta: { label: "تعرّف على فريقنا ←", href: "/about" },
-    image: "/carousel/Slide1.png",
+    image: "/carousel/Slide1.jpg",
   },
   {
     kicker: "أكاديمية مكي",
@@ -31,7 +31,7 @@ const slides: Slide[] = [
     ],
     points: ["مسار الطلبة", "مسار المحامين", "تأهيل وتدريب"],
     cta: { label: "اكتشف دوراتنا التدريبية ←", href: "/courses" },
-    image: "/carousel/Slide2.png",
+    image: "/carousel/Slide2.jpg",
   },
   {
     kicker: "عملاؤنا",
@@ -41,7 +41,7 @@ const slides: Slide[] = [
     ],
     points: ["أفراد", "شركات ناشئة", "مؤسسات تجارية"],
     cta: { label: "احجز استشارتك الآن ←", href: "/contact" },
-    image: "/carousel/Slide3.png",
+    image: "/carousel/Slide3.jpg",
   },
 ];
 

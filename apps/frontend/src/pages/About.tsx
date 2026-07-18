@@ -5,7 +5,7 @@ export default function About() {
         <div className="mx-auto grid max-w-6xl items-center gap-14 lg:grid-cols-2">
           <div className="overflow-hidden rounded-xl bg-(--color-silver-light)">
             {/* TODO: استبدال بصورة حقيقية لمكتب مكي */}
-            <img src="/carousel/Slide1.png" alt="مكتب مكي للمحاماة" className="h-auto w-full" />
+            <img src="/carousel/Slide1.jpg" alt="مكتب مكي للمحاماة" className="h-auto w-full" />
           </div>
           <div>
             <div className="mb-2 text-sm font-bold text-(--color-gold-dim)">من نحن</div>
@@ -53,7 +53,7 @@ export default function About() {
             </a>
           </div>
           <div className="order-1 overflow-hidden rounded-xl bg-(--color-silver-light) lg:order-2">
-            <img src="/carousel/Slide2.png" alt="أكاديمية مكي" className="h-auto w-full" />
+            <img src="/carousel/Slide2.jpg" alt="أكاديمية مكي" className="h-auto w-full" />
           </div>
         </div>
       </section>
@@ -61,7 +61,7 @@ export default function About() {
       <section className="bg-(--color-paper-alt) px-6 py-20">
         <div className="mx-auto grid max-w-6xl items-center gap-14 lg:grid-cols-2">
           <div className="overflow-hidden rounded-xl bg-(--color-silver-light)">
-            <img src="/carousel/Slide3.png" alt="عملاؤنا" className="h-auto w-full" />
+            <img src="/carousel/Slide3.jpg" alt="عملاؤنا" className="h-auto w-full" />
           </div>
           <div>
             <div className="mb-2 text-sm font-bold text-(--color-gold-dim)">عملاؤنا</div>
@@ -96,10 +96,10 @@ export default function About() {
           <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
             {/* TODO: تأكيد الأسماء والمناصب الحقيقية - القيم دي تقديرية مؤقتة */}
             {[
-              { name: "د. يحيى", role: "الشريك المؤسس", image: "/team/DR-Yahya3.png" },
-              { name: "د. أحمد", role: "مستشار قانون تجاري وشركات", image: "/team/DR-Ahmed3.png" },
-              { name: "د. حسن", role: "مستشار القانون الجنائي", image: "/team/DR-Hassan3.png" },
-              { name: "د. مونا", role: "مستشارة الأحوال الشخصية", image: "/team/DR-Mona3.png" },
+              { name: "د. يحيى", role: "الشريك المؤسس", image: "/team/DR-Yahya3.jpg" },
+              { name: "د. أحمد", role: "مستشار قانون تجاري وشركات", image: "/team/DR-Ahmed3.jpg" },
+              { name: "د. حسن", role: "مستشار القانون الجنائي", image: "/team/DR-Hassan3.jpg" },
+              { name: "د. مونا", role: "مستشارة الأحوال الشخصية", image: "/team/DR-Mona3.jpg" },
             ].map((m) => (
               <div key={m.name} className="text-center">
                 <img src={m.image} alt={m.name} className="aspect-3/4 w-full rounded-lg object-cover" />

@@ -20,10 +20,10 @@ const stats = [
 
 // TODO: تأكيد الأسماء والمناصب الحقيقية - القيم دي تقديرية مؤقتة
 const teamPreview = [
-  { name: "د. يحيى", role: "الشريك المؤسس", image: "/team/DR-Yahya3.png" },
-  { name: "د. أحمد", role: "مستشار قانون تجاري وشركات", image: "/team/DR-Ahmed3.png" },
-  { name: "د. حسن", role: "مستشار القانون الجنائي", image: "/team/DR-Hassan3.png" },
-  { name: "د. مونا", role: "مستشارة الأحوال الشخصية", image: "/team/DR-Mona3.png" },
+  { name: "د. يحيى", role: "الشريك المؤسس", image: "/team/DR-Yahya3.jpg" },
+  { name: "د. أحمد", role: "مستشار قانون تجاري وشركات", image: "/team/DR-Ahmed3.jpg" },
+  { name: "د. حسن", role: "مستشار القانون الجنائي", image: "/team/DR-Hassan3.jpg" },
+  { name: "د. مونا", role: "مستشارة الأحوال الشخصية", image: "/team/DR-Mona3.jpg" },
 ];
 
 export default function Home() {

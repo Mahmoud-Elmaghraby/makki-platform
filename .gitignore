@@ -37,3 +37,4 @@ Thumbs.db
 
 # pnpm
 .pnpm-store/
+apps/frontend/public_backup/
