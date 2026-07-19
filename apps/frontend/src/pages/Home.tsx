@@ -2,28 +2,26 @@ import { Link } from "react-router-dom";
 import AboutCarousel from "../components/AboutCarousel";
 
 const practiceAreas = [
-  { title: "القانون التجاري", desc: "استشارات وتأسيس الشركات، والعقود، وتسوية النزاعات التجارية." },
-  { title: "الأحوال الشخصية", desc: "قضايا الزواج والطلاق والحضانة والميراث." },
-  { title: "القانون العقاري", desc: "صياغة عقود البيع والإيجار، ونزاعات الملكية." },
-  { title: "القانون الجنائي", desc: "دفاع جنائي شامل وتمثيل أمام النيابة والمحاكم." },
-  { title: "قانون العمل", desc: "حقوق العمال وأصحاب العمل وعقود التوظيف." },
-  { title: "تأسيس الشركات", desc: "التراخيص، الحوكمة، والاندماج والاستحواذ." },
+  { title: "القضايا والاستشارات القانونية", desc: "قضايا مدنية وجنائية وإدارية، ومنازعات تجارية وتحكيم." },
+  { title: "تأسيس الشركات", desc: "تأسيس جميع أنواع الشركات وتعديل عقودها وتصفيتها." },
+  { title: "الملكية الفكرية", desc: "تسجيل العلامات التجارية وحماية حقوق الملكية الفكرية." },
+  { title: "التدريب والتأهيل", desc: "تدريب عملي وتأهيل حقيقي لطلبة وخريجي كليات الحقوق." },
 ];
 
-// TODO: أرقام تقريبية مؤقتة - راجعها واستبدلها بالأرقام الفعلية لما تتأكد منها
 const stats = [
-  { value: "+10", label: "سنوات الخبرة" },
-  { value: "+300", label: "قضية منجزة" },
-  { value: "+5", label: "محامٍ ومستشار" },
-  { value: "95%", label: "نسبة رضا العملاء" },
+  { value: "أول شركة معتمدة", label: "في محافظة البحيرة رسميًا" },
+  { value: "قيد رقم 231", label: "معتمدة من النقابة العامة ووزارة العدل" },
+  { value: "خبرة قانونية", label: "داخل وخارج مصر" },
+  { value: "خدمات + تدريب", label: "في مكان واحد" },
 ];
 
 // TODO: تأكيد الأسماء والمناصب الحقيقية - القيم دي تقديرية مؤقتة
 const teamPreview = [
-  { name: "د. يحيى", role: "الشريك المؤسس", image: "/team/DR-Yahya3.jpg" },
-  { name: "د. أحمد", role: "مستشار قانون تجاري وشركات", image: "/team/DR-Ahmed3.jpg" },
-  { name: "د. حسن", role: "مستشار القانون الجنائي", image: "/team/DR-Hassan3.jpg" },
-  { name: "د. مونا", role: "مستشارة الأحوال الشخصية", image: "/team/DR-Mona3.jpg" },
+  { name: "د. أحمد مكي", role: "المدير التنفيذي للشركة، المحامي بالنقض، ماجستير قانون عام وباحث دكتوراه", image: "/team/DR-Ahmed3.jpg" },
+  { name: "أ. يحيى صلاح النعناعي", role: "المحامي بالنقض، رئيس قسم القانون المدني بالشركة", image: "/team/DR-Yahya3.jpg" },
+  { name: "د. أحمد إبراهيم حمام", role: "دكتوراه في القانون الإداري", image: "/team/DR-Hassan3.jpg" },
+  { name: "أ. عبير جمعة", role: "ماجستير في القانون، رئيس قسم الأحوال الشخصية بالشركة", image: "/team/DR-Mona3.jpg" },
+  { name: "أ. حسام قدري", role: "المحامي، دبلومة من الجامعة البريطانية، رئيس قسم تأسيس الشركات والملكية الفكرية", image: "/team/DR-Hossam3.jpg" },
 ];
 
 export default function Home() {
@@ -68,7 +66,7 @@ export default function Home() {
           {stats.map((s) => (
             <div key={s.label}>
               <div className="mx-auto mb-3 h-1 w-8 rounded-full bg-(--color-gold)" />
-              <div className="text-3xl font-extrabold text-(--color-gold) md:text-4xl">{s.value}</div>
+              <div className="text-base font-extrabold text-(--color-gold) md:text-lg">{s.value}</div>
               <div className="mt-2 text-xs font-medium text-white/60 md:text-sm">{s.label}</div>
             </div>
           ))}
@@ -82,7 +80,7 @@ export default function Home() {
             <h2 className="text-2xl font-extrabold text-(--color-navy) md:text-3xl">خدمات قانونية متكاملة</h2>
             <p className="mt-3 text-(--color-muted)">نغطي أهم المجالات القانونية بفريق متخصص في كل قسم.</p>
           </div>
-          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
             {practiceAreas.map((area) => (
               <div key={area.title} className="rounded-lg border border-(--color-silver) p-7">
                 <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-lg bg-(--color-gold)/10">
@@ -105,7 +103,7 @@ export default function Home() {
             <h2 className="text-2xl font-extrabold text-(--color-navy) md:text-3xl">فريقنا</h2>
             <Link to="/about" className="text-sm font-bold text-(--color-gold-dim) hover:text-(--color-navy)">كل الفريق ←</Link>
           </div>
-          <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-5">
             {teamPreview.map((m) => (
               <div key={m.name}>
                 <img src={m.image} alt={m.name} className="aspect-3/4 w-full rounded-lg object-cover" />

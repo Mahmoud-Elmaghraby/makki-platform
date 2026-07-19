@@ -23,11 +23,11 @@ export default function Header() {
             </span>
             <span className="flex items-center gap-2" dir="ltr">
               <span className="h-1.5 w-1.5 rounded-full bg-(--color-gold)" />
-              +20 XX XXX XXXX
+              01026561277
             </span>
             <span className="flex items-center gap-2">
               <span className="h-1.5 w-1.5 rounded-full bg-(--color-gold)" />
-              القاهرة، مصر
+              دمنهور، البحيرة
             </span>
           </div>
         </div>

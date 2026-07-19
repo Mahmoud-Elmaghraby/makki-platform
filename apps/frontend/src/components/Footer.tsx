@@ -32,9 +32,9 @@ export default function Footer() {
         <div>
           <div className="mb-4 text-sm font-bold text-white">تواصل معنا</div>
           <ul className="flex flex-col gap-2.5 text-sm text-white/60">
-            <li>info@makki-law.example</li>
-            <li dir="ltr">+20 XX XXX XXXX</li>
-            <li>القاهرة، مصر</li>
+            <li dir="ltr" className="text-right">01026561277</li>
+            <li dir="ltr" className="text-right">0453241410</li>
+            <li>دمنهور – آخر شارع تشاومول – أمام بن الكوربة – أعلى ماركت الإخلاص – الدور الثالث</li>
           </ul>
         </div>
       </div>

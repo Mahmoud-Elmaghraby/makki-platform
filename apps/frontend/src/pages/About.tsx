@@ -10,12 +10,11 @@ export default function About() {
           <div>
             <div className="mb-2 text-sm font-bold text-(--color-gold-dim)">من نحن</div>
             <h1 className="text-3xl font-extrabold text-(--color-navy) md:text-4xl">
-              شريككم القانوني {/* TODO: تأكيد عدد سنوات الخبرة الحقيقي */}
-              منذ أكثر من 10 سنوات
+              أول شركة معتمدة في محافظة البحيرة
             </h1>
             <p className="mt-6 leading-8 text-(--color-muted)">
-              تأسس مكتب مكي للمحاماة على مبدأ بسيط: تقديم استشارة قانونية واضحة، صادقة، وقريبة من
-              احتياجات كل عميل، أفرادًا كانوا أو شركات.
+              شركة مكي وشركاؤه للمحاماة والاستشارات القانونية والتدريب والتأهيل هي أول شركة معتمدة
+              في محافظة البحيرة من قبل النقابة العامة ووزارة العدل، ومقيدة برقم 231.
             </p>
             <p className="mt-4 leading-8 text-(--color-muted)">
               {/* TODO: نص معتمد من مكي نفسها */}
@@ -93,13 +92,13 @@ export default function About() {
             <div className="mb-2 text-sm font-bold text-(--color-gold-dim)">فريقنا</div>
             <h2 className="text-2xl font-extrabold text-(--color-navy) md:text-3xl">محامون يثق بهم عملاؤنا</h2>
           </div>
-          <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
-            {/* TODO: تأكيد الأسماء والمناصب الحقيقية - القيم دي تقديرية مؤقتة */}
+          <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-5">
             {[
-              { name: "د. يحيى", role: "الشريك المؤسس", image: "/team/DR-Yahya3.jpg" },
-              { name: "د. أحمد", role: "مستشار قانون تجاري وشركات", image: "/team/DR-Ahmed3.jpg" },
-              { name: "د. حسن", role: "مستشار القانون الجنائي", image: "/team/DR-Hassan3.jpg" },
-              { name: "د. مونا", role: "مستشارة الأحوال الشخصية", image: "/team/DR-Mona3.jpg" },
+              { name: "د. أحمد مكي", role: "المدير التنفيذي للشركة، المحامي بالنقض، ماجستير قانون عام وباحث دكتوراه", image: "/team/DR-Ahmed3.jpg" },
+              { name: "أ. يحيى صلاح النعناعي", role: "المحامي بالنقض، رئيس قسم القانون المدني بالشركة", image: "/team/DR-Yahya3.jpg" },
+              { name: "د. أحمد إبراهيم حمام", role: "دكتوراه في القانون الإداري", image: "/team/DR-Hassan3.jpg" },
+              { name: "أ. عبير جمعة", role: "ماجستير في القانون، رئيس قسم الأحوال الشخصية بالشركة", image: "/team/DR-Mona3.jpg" },
+              { name: "أ. حسام قدري", role: "المحامي، دبلومة من الجامعة البريطانية، رئيس قسم تأسيس الشركات والملكية الفكرية", image: "/team/DR-Hossam3.jpg" },
             ].map((m) => (
               <div key={m.name} className="text-center">
                 <img src={m.image} alt={m.name} className="aspect-3/4 w-full rounded-lg object-cover" />
@@ -114,10 +113,10 @@ export default function About() {
       <section className="bg-(--color-paper-alt) px-6 py-20">
         <div className="mx-auto grid max-w-6xl gap-8 sm:grid-cols-2 lg:grid-cols-4">
           {[
-            { title: "فريق متخصص", desc: "محامون متخصصون في مختلف فروع القانون بخبرة عملية." },
-            { title: "متابعة شخصية", desc: "كل قضية بتتابعها معاك بشكل مباشر لحد ما تتحل." },
-            { title: "شفافية كاملة", desc: "توضيح كل خطوة وكل تكلفة من غير أي مفاجآت." },
-            { title: "تأهيل وتدريب", desc: "برامج تدريبية متخصصة لطلبة الحقوق والمحامين عبر أكاديمية مكي." },
+            { title: "اعتماد رسمي", desc: "أول شركة معتمدة في محافظة البحيرة من النقابة العامة ووزارة العدل، مقيدة برقم 231." },
+            { title: "خبرة داخل وخارج مصر", desc: "خبرة قانونية في مختلف الفروع، داخل مصر وخارجها." },
+            { title: "فريق متخصص", desc: "فريق من المحامين والمتخصصين في كل مجالات الممارسة." },
+            { title: "تدريب وتأهيل حقيقي", desc: "برامج تدريبية عملية لطلبة وخريجي كليات الحقوق عبر أكاديمية مكي." },
           ].map((item) => (
             <div key={item.title} className="rounded-lg border border-(--color-silver) bg-(--color-paper) p-7">
               <div className="mb-4 h-1 w-8 rounded-full bg-(--color-gold)" />
