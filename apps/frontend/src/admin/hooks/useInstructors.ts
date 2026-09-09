@@ -60,3 +60,49 @@ export function useDeleteInstructor() {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["instructors"] }),
   });
 }
+
+// ============================================================
+// رفع صورة المدرب الشخصية — نفس نمط رفع صورة غلاف الكورس بالظبط
+// (useCourses.ts): بنطلب presigned PUT URL، بنرفع الملف عليه مباشرة من
+// المتصفح لـ B2 (من غير ما يعدي على السيرفر بتاعنا)، وبعدين بنأكد الرفع
+// عشان يتخزن رابط الصورة الجاهز على المدرب.
+// ============================================================
+
+export function useInstructorPhotoUploadUrl(instructorId: string) {
+  return useMutation({
+    mutationFn: async () => {
+      const { data } = await apiClient.post<{ uploadUrl: string; storageKey: string }>(
+        `/instructors/${instructorId}/photo-upload-url`,
+      );
+      return data;
+    },
+  });
+}
+
+export function uploadInstructorPhotoFile(uploadUrl: string, file: File) {
+  return fetch(uploadUrl, { method: "PUT", body: file }).then((res) => {
+    if (!res.ok) throw new Error("فشل رفع الصورة، حاول تاني");
+    return res;
+  });
+}
+
+export function useConfirmInstructorPhotoUpload(instructorId: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (storageKey: string) => {
+      const { data } = await apiClient.post<Instructor>(
+        `/instructors/${instructorId}/confirm-photo-upload`,
+        { storageKey },
+      );
+      return data;
+    },
+    // زي useUpdateInstructor: الصورة متضمّنة جوه رد المستخدمين والكورسات
+    // كمان، فلازم نبطل الكاش بتاعهم عشان الصورة الجديدة تظهر من غير refresh
+    // كامل للصفحة.
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["instructors"] });
+      queryClient.invalidateQueries({ queryKey: ["courses"] });
+      queryClient.invalidateQueries({ queryKey: ["users", "admin"] });
+    },
+  });
+}

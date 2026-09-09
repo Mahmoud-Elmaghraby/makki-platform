@@ -76,8 +76,12 @@ export default function Footer() {
           </ul>
         </div>
       </div>
-      <div className="px-6 py-5 text-center text-xs text-white/40">
-        © {new Date().getFullYear()} شركة مكي وشركاؤه. جميع الحقوق محفوظة.
+      <div className="flex flex-col items-center gap-3 px-6 py-5 text-center text-xs text-white/40 md:flex-row md:justify-between md:text-right">
+        <span>© {new Date().getFullYear()} شركة مكي وشركاؤه. جميع الحقوق محفوظة.</span>
+        <nav className="flex items-center gap-4">
+          <Link to="/privacy" className="hover:text-white">سياسة الخصوصية</Link>
+          <Link to="/terms" className="hover:text-white">الشروط والأحكام</Link>
+        </nav>
       </div>
     </footer>
   );

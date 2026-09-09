@@ -1,4 +1,4 @@
-import { Controller, Get, Param, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
 import { InstructorService } from './instructor.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
@@ -23,5 +23,20 @@ export class InstructorController {
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.instructorService.findOne(id);
+  }
+
+  // رفع صورة المدرب الشخصية من واجهة إدارة المستخدمين — نفس نمط رفع صورة
+  // غلاف الكورس (شوف CourseController).
+  @Post(':id/photo-upload-url')
+  getPhotoUploadUrl(@Param('id') id: string) {
+    return this.instructorService.getPhotoUploadUrl(id);
+  }
+
+  @Post(':id/confirm-photo-upload')
+  confirmPhotoUpload(
+    @Param('id') id: string,
+    @Body('storageKey') storageKey: string,
+  ) {
+    return this.instructorService.confirmPhotoUpload(id, storageKey);
   }
 }

@@ -11,8 +11,11 @@ import { B2StorageService } from '../storage/b2-storage.service';
  * بس عند أي S3-compatible storage — مش كفاية لصورة دايمة).
  *
  * المفتاح بييجي base64url (بدل ما يبقى فيه "/" في مسار الراوت) وبيتفك هنا.
- * مقصور على مفاتيح تبدأ بـ "covers/" بس — مش بروكسي عام لأي حاجة على B2.
+ * مقصور على مفاتيح تبدأ بأحد البادئات المسموحة بس — مش بروكسي عام لأي حاجة
+ * على B2 ("covers/" لصور غلاف الكورسات، "instructor-photos/" لصور المدربين).
  */
+const ALLOWED_KEY_PREFIXES = ['covers/', 'instructor-photos/'];
+
 @Controller('media')
 export class MediaController {
   constructor(private readonly b2: B2StorageService) {}
@@ -26,7 +29,7 @@ export class MediaController {
       throw new NotFoundException('الصورة مش موجودة');
     }
 
-    if (!key.startsWith('covers/')) {
+    if (!ALLOWED_KEY_PREFIXES.some((prefix) => key.startsWith(prefix))) {
       throw new NotFoundException('الصورة مش موجودة');
     }
 

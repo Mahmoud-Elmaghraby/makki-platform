@@ -97,6 +97,8 @@ export default function About() {
               { name: "د. أحمد مكي", role: "المدير التنفيذي للشركة، المحامي بالنقض، ماجستير قانون عام وباحث دكتوراه", image: "/team/DR-Ahmed3.jpg" },
               { name: "أ. يحيى صلاح النعناعي", role: "المحامي بالنقض، رئيس قسم القانون المدني بالشركة", image: "/team/DR-Yahya3.jpg" },
               { name: "أ. حسام قدري", role: "المحامي، دبلومة من الجامعة البريطانية، رئيس قسم تأسيس الشركات والملكية الفكرية", image: "/team/DR-Hossam3.jpg" },
+              // TODO: وصف مؤقت لحد ما نستلم البيانات الرسمية للدكتور إسلام
+              { name: "د. إسلام", role: "عضو فريق العمل — البيانات النهائية للمنصب والتخصص لسه هتتحدث", image: "/team/DR-Eslam.jpg" },
             ].map((m) => (
               <div key={m.name} className="text-center">
                 <img src={m.image} alt={m.name} className="aspect-3/4 w-full rounded-lg object-cover" />

@@ -1,5 +1,6 @@
 import { useState, type FormEvent } from "react";
 import { Modal, Field, Input, Textarea, Select, Button, ErrorBanner } from "./ui";
+import { InstructorPhotoUploadControl } from "./InstructorPhotoUploadControl";
 import { useCreateUser, useUpdateUser } from "../hooks/useUsers";
 import { useToast } from "./ToastContext";
 import { extractErrorMessage } from "../lib/apiClient";
@@ -47,7 +48,12 @@ export function UserFormModal({
           name,
           password: password || undefined,
           bio: showInstructorFields ? bio || undefined : undefined,
-          photoUrl: showInstructorFields ? photoUrl || undefined : undefined,
+          // في وضع التعديل، الصورة بقت بتتحدّث لوحدها فورًا عن طريق
+          // InstructorPhotoUploadControl (مسار رفع منفصل تمامًا). لو بعتنا
+          // photoUrl هنا كمان، هيتبعت بالقيمة القديمة المحفوظة في الـ state
+          // من وقت ما النافذة اتفتحت، وده ممكن يمسح فوق الصورة الجديدة اللي
+          // اترفعت لسه (باگ فعلي اتكشف وقت الاختبار).
+          photoUrl: undefined,
         });
         toast.success("تم حفظ التعديلات");
       } else {
@@ -122,9 +128,22 @@ export function UserFormModal({
             <Field label="نبذة تعريفية" hint="اختياري — بتظهر في صفحة الكورس العامة">
               <Textarea rows={3} value={bio} onChange={(e) => setBio(e.target.value)} />
             </Field>
-            <Field label="رابط الصورة الشخصية" hint="اختياري">
-              <Input dir="ltr" value={photoUrl} onChange={(e) => setPhotoUrl(e.target.value)} />
-            </Field>
+
+            {isEdit && user?.instructor ? (
+              <Field label="صورة المدرب">
+                <InstructorPhotoUploadControl
+                  instructorId={user.instructor.id}
+                  photoUrl={user.instructor.photoUrl}
+                />
+              </Field>
+            ) : (
+              <Field
+                label="رابط الصورة الشخصية"
+                hint="اختياري — تقدر ترفع الصورة مباشرة بعد إنشاء الحساب من نافذة التعديل"
+              >
+                <Input dir="ltr" value={photoUrl} onChange={(e) => setPhotoUrl(e.target.value)} />
+              </Field>
+            )}
           </>
         )}
 

@@ -51,7 +51,7 @@ export default function Home() {
 
           <div className="w-full overflow-hidden rounded-xl">
             <img
-              src="/hero-lawyer.jpg"
+              src="/hero-2.jpg"
               alt="فريق مكي وشركاؤه"
               className="h-auto w-full"
             />
