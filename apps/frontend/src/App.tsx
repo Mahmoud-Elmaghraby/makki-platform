@@ -8,6 +8,8 @@ import Courses from "./pages/Courses";
 import Trainings from "./pages/Trainings";
 import CourseDetail from "./pages/CourseDetail";
 import Contact from "./pages/Contact";
+import Privacy from "./pages/Privacy";
+import Terms from "./pages/Terms";
 
 import { queryClient } from "./admin/lib/queryClient";
 import { AdminAuthProvider } from "./admin/auth/AdminAuthContext";
@@ -60,6 +62,8 @@ export default function App() {
               <Route path="/trainings" element={<Trainings />} />
               <Route path="/courses/:slug" element={<CourseDetail />} />
               <Route path="/contact" element={<Contact />} />
+              <Route path="/privacy" element={<Privacy />} />
+              <Route path="/terms" element={<Terms />} />
             </Route>
 
             <Route path="/student/login" element={<StudentLoginPage />} />
