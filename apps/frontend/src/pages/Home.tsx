@@ -19,8 +19,6 @@ const stats = [
 const teamPreview = [
   { name: "د. أحمد مكي", role: "المدير التنفيذي للشركة، المحامي بالنقض، ماجستير قانون عام وباحث دكتوراه", image: "/team/DR-Ahmed3.jpg" },
   { name: "أ. يحيى صلاح النعناعي", role: "المحامي بالنقض، رئيس قسم القانون المدني بالشركة", image: "/team/DR-Yahya3.jpg" },
-  { name: "د. أحمد إبراهيم حمام", role: "دكتوراه في القانون الإداري", image: "/team/DR-Hassan3.jpg" },
-  { name: "أ. عبير جمعة", role: "ماجستير في القانون، رئيس قسم الأحوال الشخصية بالشركة", image: "/team/DR-Mona3.jpg" },
   { name: "أ. حسام قدري", role: "المحامي، دبلومة من الجامعة البريطانية، رئيس قسم تأسيس الشركات والملكية الفكرية", image: "/team/DR-Hossam3.jpg" },
 ];
 
@@ -38,7 +36,7 @@ export default function Home() {
               خبرة قانونية تقف بجانبك في كل قضية
             </h1>
             <p className="mt-5 max-w-md text-base leading-8 text-white/70">
-              مكتب مكي للمحاماة يقدّم محاماة واستشارات قانونية، وبرامج تأهيل وتدريب متخصصة
+              مكي وشركاؤه يقدّم محاماة واستشارات قانونية، وبرامج تأهيل وتدريب متخصصة
               لطلبة كليات الحقوق والمحامين الممارسين.
             </p>
             <div className="mt-8 flex flex-wrap items-center gap-7">
@@ -54,7 +52,7 @@ export default function Home() {
           <div className="w-full overflow-hidden rounded-xl">
             <img
               src="/hero-lawyer.jpg"
-              alt="فريق مكتب مكي للمحاماة"
+              alt="فريق مكي وشركاؤه"
               className="h-auto w-full"
             />
           </div>
@@ -103,7 +101,7 @@ export default function Home() {
             <h2 className="text-2xl font-extrabold text-(--color-navy) md:text-3xl">فريقنا</h2>
             <Link to="/about" className="text-sm font-bold text-(--color-gold-dim) hover:text-(--color-navy)">كل الفريق ←</Link>
           </div>
-          <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-5">
+          <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {teamPreview.map((m) => (
               <div key={m.name}>
                 <img src={m.image} alt={m.name} className="aspect-3/4 w-full rounded-lg object-cover" />

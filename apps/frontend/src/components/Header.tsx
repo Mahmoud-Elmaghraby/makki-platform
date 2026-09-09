@@ -5,7 +5,8 @@ const navItems = [
   { to: "/", label: "الرئيسية" },
   { to: "/about", label: "عن الشركة" },
   { to: "/services", label: "خدماتنا" },
-  { to: "/courses", label: "دوراتنا" },
+  { to: "/courses", label: "كورساتنا" },
+  { to: "/trainings", label: "دوراتنا التدريبية" },
   { to: "/contact", label: "تواصل معنا" },
 ];
 
@@ -17,10 +18,10 @@ export default function Header() {
       <div className="hidden bg-(--color-navy-deep) py-2 text-xs text-white/70 md:block">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6">
           <div className="flex items-center gap-6">
-            <span className="flex items-center gap-2">
+            <a href="mailto:info@mekkylaw.com" className="flex items-center gap-2 hover:text-white">
               <span className="h-1.5 w-1.5 rounded-full bg-(--color-gold)" />
-              info@makki-law.example
-            </span>
+              info@mekkylaw.com
+            </a>
             <span className="flex items-center gap-2" dir="ltr">
               <span className="h-1.5 w-1.5 rounded-full bg-(--color-gold)" />
               01026561277
@@ -36,9 +37,9 @@ export default function Header() {
       <header className="sticky top-0 z-50 bg-(--color-navy)">
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-6 px-6 py-4">
           <NavLink to="/" className="flex shrink-0 items-center gap-3">
-            <img src="/logo.png" alt="مكي للمحاماة" className="h-14 w-14 object-contain" />
+            <img src="/logo.png" alt="شركة مكي وشركاؤه" className="h-14 w-14 object-contain" />
             <div>
-              <div className="text-lg font-extrabold text-white">مكي للمحاماة</div>
+              <div className="text-lg font-extrabold text-white">شركة مكي وشركاؤه</div>
               <div className="flex items-center gap-2 text-xs font-semibold text-(--color-gold)">
                 <span className="h-px w-4 bg-(--color-gold)/70" />
                 محاماة · استشارات · تأهيل وتدريب
@@ -64,6 +65,12 @@ export default function Header() {
                 </NavLink>
               ))}
             </nav>
+            <NavLink
+              to="/student/login"
+              className="shrink-0 rounded-md border border-white/20 px-5 py-3 text-sm font-bold whitespace-nowrap text-white/90 hover:border-(--color-gold) hover:text-(--color-gold)"
+            >
+              بوابة الطالب
+            </NavLink>
             <NavLink
               to="/contact"
               className="shrink-0 rounded-md bg-(--color-gold) px-6 py-3 text-sm font-bold whitespace-nowrap text-(--color-navy) hover:bg-(--color-gold-dim)"
@@ -99,6 +106,13 @@ export default function Header() {
                 {item.label}
               </NavLink>
             ))}
+            <NavLink
+              to="/student/login"
+              onClick={() => setOpen(false)}
+              className="mt-2 rounded-lg border border-white/20 px-3 py-2 text-center text-sm font-bold text-white/90"
+            >
+              بوابة الطالب
+            </NavLink>
             <NavLink
               to="/contact"
               onClick={() => setOpen(false)}

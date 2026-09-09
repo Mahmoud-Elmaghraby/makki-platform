@@ -1,0 +1,452 @@
+// Prisma schema — منصة مكي للمحاماة
+// مصدره الأساسي: مشروع new-mistak (مملوك للعميل، منقول بتصريح)، بعد حذف
+// Booking/Group/GradeLevel (خاصة بمجال الدروس الخصوصية) وإضافة الموديلات
+// الخاصة بمكي: CourseTrack, Instructor, Payment, Certificate, ConsultationRequest.
+// راجع docs/reuse-plan.md و docs/technical-architecture.md لتفاصيل القرار.
+
+generator client {
+  provider     = "prisma-client"
+  output       = "../src/generated/prisma"
+  moduleFormat = "cjs"
+}
+
+datasource db {
+  provider = "postgresql"
+  // من Prisma 7: رابط الاتصال بقاعدة البيانات بقى في prisma.config.ts مش هنا.
+}
+
+// ============================================================
+// المستخدمون الإداريون (Admin / Instructor)
+// ============================================================
+
+model User {
+  id           String     @id @default(uuid())
+  email        String     @unique
+  passwordHash String
+  name         String
+  role         Role       @default(ADMIN)
+  instructor   Instructor?
+  createdAt    DateTime   @default(now())
+}
+
+enum Role {
+  ADMIN
+  MANAGER
+  INSTRUCTOR
+}
+
+// مدرب/محامي بيقدّم كورسات أو دورات — مرتبط بحساب تسجيل دخول في User
+// (الفصل بين الاتنين بيسهّل عرض بروفايل عام للمدرب على الموقع لاحقًا
+// من غير ما نكشف بيانات حساب الدخول بتاعه).
+model Instructor {
+  id       String   @id @default(uuid())
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId   String   @unique
+  name     String
+  bio      String?
+  photoUrl String?
+  courses  Course[]
+}
+
+// ============================================================
+// الطلاب (Student) — نظام مصادقة منفصل تمامًا عن User
+// ============================================================
+
+model Student {
+  id             String           @id @default(uuid())
+  name           String
+  phone          String?          @unique
+  email          String?          @unique
+  googleId       String?          @unique
+  passwordHash   String?
+  isActive       Boolean          @default(true)
+  enrollments    Enrollment[]
+  examAttempts   ExamAttempt[]
+  lessonProgress LessonProgress[]
+  checkpointResponses CheckpointResponse[]
+  payments       Payment[]
+  certificates   Certificate[]
+  notifications  Notification[]
+  createdAt      DateTime         @default(now())
+}
+
+// ============================================================
+// الكورسات والدورات
+// ============================================================
+
+// تمييز الكورس (لطلاب كلية الحقوق) عن الدورة (للمحامين المتخرجين) على
+// نفس الموديل بدل ما نعمل جدولين منفصلين — الفرق تسويقي/تصنيفي بس.
+enum CourseTrack {
+  STUDENT_COURSE
+  LAWYER_TRAINING
+}
+
+model Course {
+  id            String       @id @default(uuid())
+  title         String
+  slug          String       @unique
+  description   String?
+  coverImageKey String?
+  // محتوى صفحة تفاصيل الكورس العامة (زي كورسيرا) — بيتملى من لوحة الأدمن،
+  // بيظهر كله في صفحة واحدة من غير تابات (راجع CourseDetail.tsx بالفرونت إند).
+  detailedDescription String?
+  whatYouWillLearn    String[] @default([])
+  requirements        String[] @default([])
+  targetAudience      String?
+  track         CourseTrack
+  // faculty/academicYear بيتحطوا بس على كورسات "قسم كورسات الكليات" (طالب
+  // كلية حقوق/شريعة وقانون) — بيفضلوا null لكورسات LAWYER_TRAINING ولأي
+  // كورس دراسات عليا لسه التصنيف بتاعه ما اتحددش.
+  faculty       Faculty?
+  academicYear  AcademicYear?
+  priceEGP      Int
+  isPublished   Boolean      @default(false)
+  instructor    Instructor?  @relation(fields: [instructorId], references: [id])
+  instructorId  String?
+  sections      Section[]
+  lessons       Lesson[]
+  attachments   Attachment[]
+  exams         Exam[]
+  enrollments   Enrollment[]
+  payments      Payment[]
+  certificates  Certificate[]
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+}
+
+enum Faculty {
+  LAW_TANTA
+  LAW_ALEXANDRIA
+  LAW_PHAROS
+  SHARIA_AND_LAW
+}
+
+enum AcademicYear {
+  YEAR_1
+  YEAR_2
+  YEAR_3
+  YEAR_4
+}
+
+// قسم/فصل — بيدعم التداخل (قسم جوه قسم) عن طريق parent/children.
+model Section {
+  id          String       @id @default(uuid())
+  title       String
+  order       Int          @default(0)
+  course      Course       @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  courseId    String
+  parent      Section?     @relation("SectionChildren", fields: [parentId], references: [id], onDelete: Cascade)
+  parentId    String?
+  children    Section[]    @relation("SectionChildren")
+  lessons     Lesson[]
+  attachments Attachment[]
+  exams       Exam[]
+  createdAt   DateTime     @default(now())
+}
+
+model Lesson {
+  id              String           @id @default(uuid())
+  title           String
+  description     String?
+  order           Int              @default(0)
+  course          Course           @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  courseId        String
+  section         Section?         @relation(fields: [sectionId], references: [id], onDelete: SetNull)
+  sectionId       String?
+  storageKey      String?          // مفتاح ملف الفيديو الأصلي على B2
+  videoReady      Boolean          @default(false)
+  videoFailed     Boolean          @default(false)
+  durationSeconds Int?
+  isFreePreview   Boolean          @default(false)
+  isPublished     Boolean          @default(false)
+  attachments     Attachment[]
+  progress        LessonProgress[]
+  checkpoints     VideoCheckpoint[]
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+}
+
+model Attachment {
+  id            String   @id @default(uuid())
+  title         String
+  storageKey    String
+  fileSizeBytes Int?
+  course        Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  courseId      String
+  section       Section? @relation(fields: [sectionId], references: [id], onDelete: SetNull)
+  sectionId     String?
+  lesson        Lesson?  @relation(fields: [lessonId], references: [id], onDelete: SetNull)
+  lessonId      String?
+  createdAt     DateTime @default(now())
+}
+
+model LessonProgress {
+  id             String   @id @default(uuid())
+  student        Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  studentId      String
+  lesson         Lesson   @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  lessonId       String
+  watchedSeconds Int      @default(0)
+  completed      Boolean  @default(false)
+  updatedAt      DateTime @updatedAt
+
+  @@unique([studentId, lessonId])
+}
+
+// ============================================================
+// أسئلة داخل الفيديو (Video Checkpoints) — سؤال بيظهر في لحظة محددة أثناء
+// تشغيل الفيديو، الهدف تركيز الطالب مش امتحان حقيقي: لازم يجاوب عشان
+// الفيديو يكمل، لكن الإجابة الغلط ماتوقفوش — بس بتتسجّل للمتابعة (تحليل
+// لاحق: مين بيغلط فين). راجع claude/sprint-video-checkpoints.md.
+// ============================================================
+
+enum CheckpointQuestionType {
+  MULTIPLE_CHOICE
+  TRUE_FALSE
+}
+
+model VideoCheckpoint {
+  id               String                 @id @default(uuid())
+  lesson           Lesson                 @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  lessonId         String
+  timestampSeconds Int
+  question         String
+  type             CheckpointQuestionType
+  options          Json? // للاختيار من متعدد بس: [{ id, text }]
+  correctOptionId  String?
+  correctBoolean   Boolean?
+  order            Int                    @default(0)
+  createdAt        DateTime               @default(now())
+  responses        CheckpointResponse[]
+
+  @@index([lessonId])
+}
+
+model CheckpointResponse {
+  id               String          @id @default(uuid())
+  checkpoint       VideoCheckpoint @relation(fields: [checkpointId], references: [id], onDelete: Cascade)
+  checkpointId     String
+  student          Student         @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  studentId        String
+  selectedOptionId String?
+  booleanAnswer    Boolean?
+  isCorrect        Boolean
+  answeredAt       DateTime        @default(now())
+
+  // لو الطالب رجّع الفيديو لورا وجاوب تاني، بنحدّث نفس الصف (آخر محاولة) —
+  // مش هدفنا نعاقبه، هدفنا نعرف هل ركّز في اللحظة دي ولا لأ.
+  @@unique([checkpointId, studentId])
+}
+
+// ============================================================
+// الامتحانات (Exams) — مرتبطة بالكورس ككل أو بقسم معيّن (أسئلة في نص الكورس)
+// ============================================================
+
+model Exam {
+  id              String        @id @default(uuid())
+  title           String
+  description     String?
+  course          Course        @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  courseId        String
+  section         Section?      @relation(fields: [sectionId], references: [id], onDelete: SetNull)
+  sectionId       String?
+  durationMinutes Int?
+  passingScore    Int?          // حد النجاح — شرط لصرف الشهادة
+  maxAttempts     Int?          // أقصى عدد محاولات مسموح بيها — فاضي يعني بلا حدود
+  isPublished     Boolean       @default(false)
+  questions       Question[]
+  attempts        ExamAttempt[]
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+}
+
+enum QuestionType {
+  MULTIPLE_CHOICE
+  TRUE_FALSE
+  ESSAY
+}
+
+model Question {
+  id              String       @id @default(uuid())
+  exam            Exam         @relation(fields: [examId], references: [id], onDelete: Cascade)
+  examId          String
+  type            QuestionType
+  text            String
+  order           Int          @default(0)
+  points          Int          @default(1)
+  options         Json?
+  correctOptionId String?
+  correctBoolean  Boolean?
+  answers         Answer[]
+}
+
+enum AttemptStatus {
+  IN_PROGRESS
+  SUBMITTED
+  GRADED
+}
+
+model ExamAttempt {
+  id          String        @id @default(uuid())
+  exam        Exam          @relation(fields: [examId], references: [id], onDelete: Cascade)
+  examId      String
+  student     Student       @relation(fields: [studentId], references: [id])
+  studentId   String
+  status      AttemptStatus @default(IN_PROGRESS)
+  startedAt   DateTime      @default(now())
+  submittedAt DateTime?
+  gradedAt    DateTime?
+  score       Int?
+  maxScore    Int?
+  answers     Answer[]
+
+  @@index([examId, studentId, status])
+}
+
+model Answer {
+  id               String      @id @default(uuid())
+  attempt          ExamAttempt @relation(fields: [attemptId], references: [id], onDelete: Cascade)
+  attemptId        String
+  question         Question    @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  questionId       String
+  selectedOptionId String?
+  booleanAnswer    Boolean?
+  essayText        String?
+  pointsAwarded    Int?
+  teacherFeedback  String?
+
+  @@unique([attemptId, questionId])
+}
+
+// ============================================================
+// الاشتراك (Enrollment) — بيتفعّل تلقائيًا عن طريق الدفع، أو يدويًا من الأدمن
+// ============================================================
+
+enum EnrollmentStatus {
+  ACTIVE
+  REVOKED
+}
+
+model Enrollment {
+  id        String           @id @default(uuid())
+  student   Student          @relation(fields: [studentId], references: [id])
+  studentId String
+  course    Course           @relation(fields: [courseId], references: [id])
+  courseId  String
+  status    EnrollmentStatus @default(ACTIVE)
+  createdAt DateTime         @default(now())
+
+  @@unique([studentId, courseId])
+}
+
+// ============================================================
+// الدفع — جديد بالكامل لمكي (new-mistak مفيهوش نظام دفع خالص)
+// ============================================================
+
+enum PaymentProvider {
+  PAYMOB
+  KASHIER
+  MANUAL
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  FAILED
+  REFUNDED
+}
+
+model Payment {
+  id          String          @id @default(uuid())
+  student     Student         @relation(fields: [studentId], references: [id])
+  studentId   String
+  course      Course          @relation(fields: [courseId], references: [id])
+  courseId    String
+  amountEGP   Int
+  provider    PaymentProvider
+  providerRef String?
+  status      PaymentStatus   @default(PENDING)
+  createdAt   DateTime        @default(now())
+  paidAt      DateTime?
+}
+
+// ============================================================
+// الشهادات — جديد بالكامل لمكي
+// ============================================================
+
+model Certificate {
+  id             String   @id @default(uuid())
+  student        Student  @relation(fields: [studentId], references: [id])
+  studentId      String
+  course         Course   @relation(fields: [courseId], references: [id])
+  courseId       String
+  serialNumber   String   @unique
+  fileStorageKey String
+  issuedAt       DateTime @default(now())
+
+  @@unique([studentId, courseId])
+}
+
+// ============================================================
+// طلبات الاستشارة القانونية — جديد بالكامل لمكي
+// ============================================================
+
+enum ConsultationType {
+  LEGAL_CONSULTATION
+  COURSE_INQUIRY
+  TRAINING_INQUIRY
+}
+
+enum ConsultationStatus {
+  NEW
+  CONTACTED
+  CLOSED
+}
+
+model ConsultationRequest {
+  id        String             @id @default(uuid())
+  type      ConsultationType   @default(LEGAL_CONSULTATION)
+  name      String
+  phone     String
+  email     String?
+  subject   String?
+  message   String
+  status    ConsultationStatus @default(NEW)
+  createdAt DateTime           @default(now())
+}
+
+
+enum NotificationAudience {
+  ADMIN
+  STUDENT
+}
+
+enum NotificationType {
+  EXAM_NEEDS_GRADING
+  EXAM_GRADED
+  STUDENT_ENROLLED
+  CERTIFICATE_ISSUED
+  PAYMENT_RECEIVED
+  CONSULTATION_REQUEST
+}
+
+/// نظام إشعارات مركزي: كل حدث مهم في المنصة (امتحان محتاج تصحيح، طالب
+/// اشترك، امتحان اتصحح، شهادة اتصدرت، دفعة استلمت) بيولّد صف هنا.
+/// audience=ADMIN معناها الإشعار ده يظهر لكل فريق الأدمن/المدربين (مفيش
+/// studentId)، وaudience=STUDENT معناها إشعار خاص بطالب معيّن (studentId
+/// مطلوب).
+model Notification {
+  id        String               @id @default(uuid())
+  audience  NotificationAudience
+  type      NotificationType
+  title     String
+  body      String?
+  link      String?
+  studentId String?
+  student   Student?             @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  isRead    Boolean              @default(false)
+  createdAt DateTime             @default(now())
+
+  @@index([audience, isRead, createdAt])
+  @@index([studentId, isRead, createdAt])
+}

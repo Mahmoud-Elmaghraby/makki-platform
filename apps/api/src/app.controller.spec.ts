@@ -15,8 +15,8 @@ describe('AppController', () => {
   });
 
   describe('root', () => {
-    it('should return "Hello World!"', () => {
-      expect(appController.getHello()).toBe('Hello World!');
+    it('should report ok health status', () => {
+      expect(appController.getHealth()).toEqual({ status: 'ok', service: 'makki-api' });
     });
   });
 });

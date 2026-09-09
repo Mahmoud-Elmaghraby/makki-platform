@@ -5,7 +5,7 @@ export default function About() {
         <div className="mx-auto grid max-w-6xl items-center gap-14 lg:grid-cols-2">
           <div className="overflow-hidden rounded-xl bg-(--color-silver-light)">
             {/* TODO: استبدال بصورة حقيقية لمكتب مكي */}
-            <img src="/carousel/Slide1.jpg" alt="مكتب مكي للمحاماة" className="h-auto w-full" />
+            <img src="/carousel/Slide1.jpg" alt="مكي وشركاؤه" className="h-auto w-full" />
           </div>
           <div>
             <div className="mb-2 text-sm font-bold text-(--color-gold-dim)">من نحن</div>
@@ -92,12 +92,10 @@ export default function About() {
             <div className="mb-2 text-sm font-bold text-(--color-gold-dim)">فريقنا</div>
             <h2 className="text-2xl font-extrabold text-(--color-navy) md:text-3xl">محامون يثق بهم عملاؤنا</h2>
           </div>
-          <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-5">
+          <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
             {[
               { name: "د. أحمد مكي", role: "المدير التنفيذي للشركة، المحامي بالنقض، ماجستير قانون عام وباحث دكتوراه", image: "/team/DR-Ahmed3.jpg" },
               { name: "أ. يحيى صلاح النعناعي", role: "المحامي بالنقض، رئيس قسم القانون المدني بالشركة", image: "/team/DR-Yahya3.jpg" },
-              { name: "د. أحمد إبراهيم حمام", role: "دكتوراه في القانون الإداري", image: "/team/DR-Hassan3.jpg" },
-              { name: "أ. عبير جمعة", role: "ماجستير في القانون، رئيس قسم الأحوال الشخصية بالشركة", image: "/team/DR-Mona3.jpg" },
               { name: "أ. حسام قدري", role: "المحامي، دبلومة من الجامعة البريطانية، رئيس قسم تأسيس الشركات والملكية الفكرية", image: "/team/DR-Hossam3.jpg" },
             ].map((m) => (
               <div key={m.name} className="text-center">
