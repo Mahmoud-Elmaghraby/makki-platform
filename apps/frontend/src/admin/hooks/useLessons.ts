@@ -1,12 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiClient } from "../lib/apiClient";
-import { uploadToPresignedPost } from "../lib/uploadToPresignedPost";
+import { uploadFileToApi } from "../lib/uploadFileToApi";
 import type { Lesson } from "../types/api";
-
-interface UploadUrlResponse {
-  uploadUrl: string;
-  uploadFields: Record<string, string>;
-}
 
 export interface LessonInput {
   title: string;
@@ -28,7 +23,7 @@ export function useCreateLesson(courseId: string) {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (input: LessonInput) => {
-      const { data } = await apiClient.post<{ lesson: Lesson } & UploadUrlResponse>(
+      const { data } = await apiClient.post<{ lesson: Lesson }>(
         `/courses/${courseId}/lessons`,
         input,
       );
@@ -38,40 +33,28 @@ export function useCreateLesson(courseId: string) {
   });
 }
 
-export function useLessonUploadUrl(courseId: string) {
-  return useMutation({
-    mutationFn: async (lessonId: string) => {
-      const { data } = await apiClient.post<UploadUrlResponse>(
-        `/courses/${courseId}/lessons/${lessonId}/upload-url`,
-      );
-      return data;
-    },
-  });
-}
-
 /**
- * بيرفع الفيديو مباشرة على B2 عن طريق presigned **POST** policy — مش عن
- * طريق الـ API (عشان الفيديو الكبير ميعديش على السيرفر بتاعنا)، ومش presigned
- * PUT (عشان طلب PUT بيفرض CORS preflight دايمًا، وB2 بيرفضه — راجع
- * uploadToPresignedPost.ts للتفاصيل).
+ * رفع فيديو الدرس — بيعدي على الـ API بتاعنا (نفس الدومين، مفيش CORS) وهو
+ * اللي يرفعه لـ B2 من جواه ويجدول التحويل (transcode) تلقائيًا. خطوة واحدة
+ * بس، من غير presigned URL ولا تأكيد منفصل.
  */
-export function uploadVideoFile(
-  uploadUrl: string,
-  uploadFields: Record<string, string>,
-  file: File,
-  onProgress?: (percent: number) => void,
-) {
-  return uploadToPresignedPost(uploadUrl, uploadFields, file, onProgress);
-}
-
-export function useConfirmUpload(courseId: string) {
+export function useUploadLessonVideo(courseId: string) {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async (lessonId: string) => {
-      const { data } = await apiClient.post(
-        `/courses/${courseId}/lessons/${lessonId}/confirm-upload`,
+    mutationFn: async ({
+      lessonId,
+      file,
+      onProgress,
+    }: {
+      lessonId: string;
+      file: File;
+      onProgress?: (percent: number) => void;
+    }) => {
+      return uploadFileToApi<{ queued: boolean }>(
+        `/courses/${courseId}/lessons/${lessonId}/upload`,
+        file,
+        onProgress,
       );
-      return data;
     },
     onSuccess: () => invalidateCourseContent(queryClient, courseId),
   });

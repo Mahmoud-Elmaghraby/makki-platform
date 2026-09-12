@@ -1,15 +1,16 @@
 import { useEffect, useRef, useState } from "react";
 import { UploadCloud, CheckCircle2, XCircle, RefreshCw } from "lucide-react";
 import { Button, Spinner } from "./ui";
-import { useLessonUploadUrl, useConfirmUpload, useLessonStatus, uploadVideoFile } from "../hooks/useLessons";
+import { useUploadLessonVideo, useLessonStatus } from "../hooks/useLessons";
 import { useToast } from "./ToastContext";
 import { extractErrorMessage } from "../lib/apiClient";
 
-type Phase = "idle" | "uploading" | "confirming" | "processing" | "done" | "failed";
+type Phase = "idle" | "uploading" | "processing" | "done" | "failed";
 
 /**
- * تحكم رفع/إعادة رفع فيديو الدرس. بيطلب رابط رفع (presigned POST) جديد
- * أول ما المستخدم يختار ملف.
+ * تحكم رفع/إعادة رفع فيديو الدرس. الملف بيتبعت مباشرة على الـ API بتاعنا
+ * (مفيش presigned URL ولا تأكيد منفصل)، وبمجرد ما الرفع يخلص السيرفر
+ * بيجدول التحويل (transcode) تلقائيًا.
  */
 export function VideoUploadControl({
   courseId,
@@ -29,8 +30,7 @@ export function VideoUploadControl({
   const [phase, setPhase] = useState<Phase>(videoReady ? "done" : videoFailed ? "failed" : "idle");
   const [progress, setProgress] = useState(0);
 
-  const getUploadUrl = useLessonUploadUrl(courseId);
-  const confirmUpload = useConfirmUpload(courseId);
+  const uploadVideo = useUploadLessonVideo(courseId);
   const statusQuery = useLessonStatus(courseId, lessonId, phase === "processing");
 
   useEffect(() => {
@@ -48,10 +48,7 @@ export function VideoUploadControl({
     setPhase("uploading");
     setProgress(0);
     try {
-      const { uploadUrl, uploadFields } = await getUploadUrl.mutateAsync(lessonId);
-      await uploadVideoFile(uploadUrl, uploadFields, file, setProgress);
-      setPhase("confirming");
-      await confirmUpload.mutateAsync(lessonId);
+      await uploadVideo.mutateAsync({ lessonId, file, onProgress: setProgress });
       setPhase("processing");
     } catch (err) {
       toast.error(extractErrorMessage(err));
@@ -68,12 +65,11 @@ export function VideoUploadControl({
     );
   }
 
-  if (phase === "uploading" || phase === "confirming" || phase === "processing") {
+  if (phase === "uploading" || phase === "processing") {
     return (
       <span className="flex items-center gap-1.5 text-xs font-medium text-(--color-royal-light)">
         <Spinner className="h-3.5 w-3.5" />
         {phase === "uploading" && `بيترفع... ${progress}%`}
-        {phase === "confirming" && "بيتأكد من الرفع..."}
         {phase === "processing" && "بيتحوّل لصيغة العرض..."}
       </span>
     );

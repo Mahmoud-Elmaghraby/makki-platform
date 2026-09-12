@@ -1,7 +1,6 @@
 import { useRef, useState, type FormEvent } from "react";
 import { Modal, Field, Input, Select, Button, ErrorBanner } from "./ui";
-import { useCreateAttachment } from "../hooks/useAttachments";
-import { uploadVideoFile } from "../hooks/useLessons";
+import { useCreateAttachment, useUploadAttachmentFile } from "../hooks/useAttachments";
 import { useToast } from "./ToastContext";
 import { extractErrorMessage } from "../lib/apiClient";
 import type { Lesson, Section } from "../types/api";
@@ -21,6 +20,7 @@ export function AttachmentFormModal({
 }) {
   const toast = useToast();
   const createAttachment = useCreateAttachment(courseId);
+  const uploadAttachmentFile = useUploadAttachmentFile(courseId);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [title, setTitle] = useState("");
@@ -38,7 +38,7 @@ export function AttachmentFormModal({
       return;
     }
     try {
-      const { uploadUrl, uploadFields } = await createAttachment.mutateAsync({
+      const { attachment } = await createAttachment.mutateAsync({
         title,
         fileName: file.name,
         fileSizeBytes: file.size,
@@ -46,7 +46,7 @@ export function AttachmentFormModal({
         lessonId: lessonId || undefined,
       });
       setUploading(true);
-      await uploadVideoFile(uploadUrl, uploadFields, file);
+      await uploadAttachmentFile.mutateAsync({ attachmentId: attachment.id, file });
       toast.success("تم رفع المرفق");
       onClose();
     } catch (err) {

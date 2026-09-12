@@ -1,4 +1,15 @@
-import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Param,
+  Post,
+  UseGuards,
+  UseInterceptors,
+  UploadedFile,
+} from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { diskStorage } from 'multer';
+import * as os from 'os';
 import { InstructorService } from './instructor.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
@@ -26,17 +37,16 @@ export class InstructorController {
   }
 
   // رفع صورة المدرب الشخصية من واجهة إدارة المستخدمين — نفس نمط رفع صورة
-  // غلاف الكورس (شوف CourseController).
-  @Post(':id/photo-upload-url')
-  getPhotoUploadUrl(@Param('id') id: string) {
-    return this.instructorService.getPhotoUploadUrl(id);
-  }
-
-  @Post(':id/confirm-photo-upload')
-  confirmPhotoUpload(
-    @Param('id') id: string,
-    @Body('storageKey') storageKey: string,
-  ) {
-    return this.instructorService.confirmPhotoUpload(id, storageKey);
+  // غلاف الكورس (شوف CourseController): الملف بيعدي على السيرفر بتاعنا
+  // (multer) وبعدين السيرفر يرفعه لـ B2.
+  @Post(':id/photo')
+  @UseInterceptors(
+    FileInterceptor('file', {
+      storage: diskStorage({ destination: os.tmpdir() }),
+      limits: { fileSize: 8 * 1024 * 1024 }, // 8MB كفاية جدًا لصورة شخصية
+    }),
+  )
+  uploadPhoto(@Param('id') id: string, @UploadedFile() file: Express.Multer.File) {
+    return this.instructorService.uploadPhoto(id, file);
   }
 }

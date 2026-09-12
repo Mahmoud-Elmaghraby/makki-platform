@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiClient } from "../lib/apiClient";
+import { uploadFileToApi } from "../lib/uploadFileToApi";
 import type { Attachment } from "../types/api";
 
 export interface AttachmentInput {
@@ -33,12 +34,37 @@ export function useCreateAttachment(courseId: string) {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (input: AttachmentInput) => {
-      const { data } = await apiClient.post<{
-        attachment: Attachment;
-        uploadUrl: string;
-        uploadFields: Record<string, string>;
-      }>(`/courses/${courseId}/attachments`, input);
+      const { data } = await apiClient.post<{ attachment: Attachment }>(
+        `/courses/${courseId}/attachments`,
+        input,
+      );
       return data;
+    },
+    onSuccess: () => invalidateCourseContent(queryClient, courseId),
+  });
+}
+
+/**
+ * رفع ملف المرفق — بيعدي على الـ API بتاعنا (نفس الدومين، مفيش CORS) وهو
+ * اللي يرفعه لـ B2 من جواه.
+ */
+export function useUploadAttachmentFile(courseId: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({
+      attachmentId,
+      file,
+      onProgress,
+    }: {
+      attachmentId: string;
+      file: File;
+      onProgress?: (percent: number) => void;
+    }) => {
+      return uploadFileToApi<Attachment>(
+        `/courses/${courseId}/attachments/${attachmentId}/upload`,
+        file,
+        onProgress,
+      );
     },
     onSuccess: () => invalidateCourseContent(queryClient, courseId),
   });

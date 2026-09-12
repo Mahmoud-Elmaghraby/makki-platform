@@ -1,5 +1,6 @@
 import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
 import { randomUUID } from 'crypto';
+import * as fs from 'fs';
 import { PrismaService } from '../prisma/prisma.service';
 import { B2StorageService } from '../storage/b2-storage.service';
 import { CourseOwnershipService, Actor } from '../course/course-ownership.service';
@@ -37,8 +38,29 @@ export class AttachmentService {
       },
     });
 
-    const { url, fields } = await this.b2.getPresignedPostPolicy(storageKey);
-    return { attachment, uploadUrl: url, uploadFields: fields };
+    // الملف نفسه بيترفع في خطوة تانية (uploadForCourse) بعد ما سجل المرفق
+    // يتحفظ — الأدمن بيختار الملف والفورم بيبعته لـ endpoint الرفع.
+    return { attachment };
+  }
+
+  /** رفع ملف المرفق — الملف بييجي من multer (مسار مؤقت)، بنرفعه لـ B2 من هنا. */
+  async uploadForCourse(
+    courseId: string,
+    attachmentId: string,
+    file: Express.Multer.File,
+    actor: Actor,
+  ) {
+    await this.ownership.assertCourseOwnership(courseId, actor);
+    const attachment = await this.ensureAttachmentInCourse(courseId, attachmentId);
+    try {
+      await this.b2.uploadFile(attachment.storageKey, file.path, file.mimetype);
+    } finally {
+      await fs.promises.unlink(file.path).catch(() => {});
+    }
+    return this.prisma.attachment.update({
+      where: { id: attachmentId },
+      data: { fileSizeBytes: file.size },
+    });
   }
 
   async findAllForCourseAdmin(courseId: string, actor: Actor) {

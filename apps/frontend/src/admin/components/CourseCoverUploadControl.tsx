@@ -1,21 +1,14 @@
 import { useRef, useState } from "react";
 import { ImageIcon, UploadCloud, RefreshCw } from "lucide-react";
 import { Spinner } from "./ui";
-import {
-  useCourseCoverUploadUrl,
-  useConfirmCoverUpload,
-  uploadCoverImageFile,
-} from "../hooks/useCourses";
+import { useUploadCourseCover } from "../hooks/useCourses";
 import { useToast } from "./ToastContext";
 import { extractErrorMessage } from "../lib/apiClient";
 
-type Phase = "idle" | "uploading" | "confirming";
-
 /**
- * رفع/تغيير صورة غلاف الكورس مباشرة من جهاز الأدمن — بترفع على B2 زي
- * فيديو الدرس بالظبط (presigned PUT)، من غير خطوة تحويل. بتتعرض في هيدر
- * صفحة تفاصيل الكورس (CourseDetailPage) لأنها محتاجة courseId موجود
- * بالفعل (زي الفيديو — لازم الكورس/الدرس يتحفظ الأول).
+ * رفع/تغيير صورة غلاف الكورس مباشرة من جهاز الأدمن — بتعدي على الـ API
+ * بتاعنا وهو اللي يرفعها لـ B2 من جواه. بتتعرض في هيدر صفحة تفاصيل الكورس
+ * (CourseDetailPage) لأنها محتاجة courseId موجود بالفعل.
  */
 export function CourseCoverUploadControl({
   courseId,
@@ -26,27 +19,22 @@ export function CourseCoverUploadControl({
 }) {
   const toast = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [phase, setPhase] = useState<Phase>("idle");
+  const [busy, setBusy] = useState(false);
 
-  const getUploadUrl = useCourseCoverUploadUrl(courseId);
-  const confirmUpload = useConfirmCoverUpload(courseId);
+  const uploadCover = useUploadCourseCover(courseId);
 
   async function handleFileChange(file: File) {
-    setPhase("uploading");
+    setBusy(true);
     try {
-      const { uploadUrl, uploadFields, storageKey } = await getUploadUrl.mutateAsync();
-      await uploadCoverImageFile(uploadUrl, uploadFields, file);
-      setPhase("confirming");
-      await confirmUpload.mutateAsync(storageKey);
+      await uploadCover.mutateAsync({ file });
       toast.success("اتحفظت صورة الغلاف");
     } catch (err) {
       toast.error(extractErrorMessage(err));
     } finally {
-      setPhase("idle");
+      setBusy(false);
     }
   }
 
-  const busy = phase !== "idle";
 
   return (
     <div className="flex items-center gap-3">
@@ -79,9 +67,7 @@ export function CourseCoverUploadControl({
       >
         {coverImageUrl ? <RefreshCw className="h-3.5 w-3.5" /> : <UploadCloud className="h-3.5 w-3.5" />}
         {busy
-          ? phase === "uploading"
-            ? "بيترفع..."
-            : "بيتأكد..."
+          ? "بيترفع..."
           : coverImageUrl
             ? "تغيير الصورة"
             : "رفع صورة الغلاف"}

@@ -7,8 +7,13 @@ import {
   Param,
   Delete,
   UseGuards,
+  UseInterceptors,
+  UploadedFile,
   Req,
 } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { diskStorage } from 'multer';
+import * as os from 'os';
 import { Request } from 'express';
 import { LessonService } from './lesson.service';
 import { CreateLessonDto } from './dto/create-lesson.dto';
@@ -40,22 +45,23 @@ export class LessonAdminController {
     return this.lessonService.createForCourse(courseId, dto, req.user);
   }
 
-  @Post(':id/upload-url')
-  getUploadUrl(
+  // رفع فيديو الدرس — بيعدي على السيرفر بتاعنا (multer diskStorage عشان
+  // الفيديوهات ممكن تكون كبيرة، فمش بنحمّلها كاملة في الذاكرة) وبعدين
+  // السيرفر يرفعها لـ B2 ويجدول التحويل (transcode) تلقائيًا.
+  @Post(':id/upload')
+  @UseInterceptors(
+    FileInterceptor('file', {
+      storage: diskStorage({ destination: os.tmpdir() }),
+      limits: { fileSize: 5 * 1024 * 1024 * 1024 }, // 5GB
+    }),
+  )
+  uploadVideo(
     @Param('courseId') courseId: string,
     @Param('id') id: string,
+    @UploadedFile() file: Express.Multer.File,
     @Req() req: ActorRequest,
   ) {
-    return this.lessonService.getUploadUrl(courseId, id, req.user);
-  }
-
-  @Post(':id/confirm-upload')
-  confirmUpload(
-    @Param('courseId') courseId: string,
-    @Param('id') id: string,
-    @Req() req: ActorRequest,
-  ) {
-    return this.lessonService.confirmUpload(courseId, id, req.user);
+    return this.lessonService.uploadVideo(courseId, id, file, req.user);
   }
 
   @Get(':id/status')

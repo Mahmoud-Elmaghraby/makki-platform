@@ -4,6 +4,7 @@ import {
   ConflictException,
   ForbiddenException,
 } from '@nestjs/common';
+import * as fs from 'fs';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateCourseDto, UpdateCourseDto } from './dto/course.dto';
 import { EnrollmentStatus, Role } from '../generated/prisma/enums';
@@ -59,21 +60,16 @@ export class CourseService {
     });
   }
 
-  async getCoverUploadUrl(id: string, actor: Actor) {
+  /** رفع صورة غلاف الكورس — الملف بييجي من multer (مسار مؤقت على قرص
+   * السيرفر)، بنرفعه لـ B2 من هنا وبعدين نحذف النسخة المؤقتة. */
+  async uploadCover(id: string, file: Express.Multer.File, actor: Actor) {
     const course = await this.ensureExists(id);
     this.assertOwnership(course.instructorId, actor);
     const storageKey = `covers/${id}`;
-    const { url, fields } = await this.b2.getPresignedPostPolicy(storageKey, {
-      maxSizeBytes: 8 * 1024 * 1024, // 8MB كفاية جدًا لصورة غلاف
-    });
-    return { uploadUrl: url, uploadFields: fields, storageKey };
-  }
-
-  async confirmCoverUpload(id: string, storageKey: string, actor: Actor) {
-    const course = await this.ensureExists(id);
-    this.assertOwnership(course.instructorId, actor);
-    if (storageKey !== `covers/${id}`) {
-      throw new ForbiddenException('مفتاح الرفع مش متطابق مع الكورس ده');
+    try {
+      await this.b2.uploadFile(storageKey, file.path, file.mimetype);
+    } finally {
+      await fs.promises.unlink(file.path).catch(() => {});
     }
     const updated = await this.prisma.course.update({
       where: { id },

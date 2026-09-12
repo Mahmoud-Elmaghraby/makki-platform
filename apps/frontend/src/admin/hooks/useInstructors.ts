@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiClient } from "../lib/apiClient";
-import { uploadToPresignedPost } from "../lib/uploadToPresignedPost";
+import { uploadFileToApi } from "../lib/uploadFileToApi";
 import type { Instructor } from "../types/api";
 
 export interface InstructorInput {
@@ -63,42 +63,25 @@ export function useDeleteInstructor() {
 }
 
 // ============================================================
-// رفع صورة المدرب الشخصية — نفس نمط رفع صورة غلاف الكورس بالظبط
-// (useCourses.ts): بنطلب presigned POST policy، بنرفع الملف عليه مباشرة من
-// المتصفح لـ B2 (من غير ما يعدي على السيرفر بتاعنا)، وبعدين بنأكد الرفع
-// عشان يتخزن رابط الصورة الجاهز على المدرب.
+// رفع صورة المدرب الشخصية — بيعدي على الـ API بتاعنا (نفس الدومين، مفيش
+// CORS) وهو اللي يرفعها لـ B2 من جواه. خطوة واحدة بس.
 // ============================================================
 
-export function useInstructorPhotoUploadUrl(instructorId: string) {
-  return useMutation({
-    mutationFn: async () => {
-      const { data } = await apiClient.post<{
-        uploadUrl: string;
-        uploadFields: Record<string, string>;
-        storageKey: string;
-      }>(`/instructors/${instructorId}/photo-upload-url`);
-      return data;
-    },
-  });
-}
-
-export function uploadInstructorPhotoFile(
-  uploadUrl: string,
-  uploadFields: Record<string, string>,
-  file: File,
-) {
-  return uploadToPresignedPost(uploadUrl, uploadFields, file);
-}
-
-export function useConfirmInstructorPhotoUpload(instructorId: string) {
+export function useUploadInstructorPhoto(instructorId: string) {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async (storageKey: string) => {
-      const { data } = await apiClient.post<Instructor>(
-        `/instructors/${instructorId}/confirm-photo-upload`,
-        { storageKey },
+    mutationFn: async ({
+      file,
+      onProgress,
+    }: {
+      file: File;
+      onProgress?: (percent: number) => void;
+    }) => {
+      return uploadFileToApi<Instructor>(
+        `/instructors/${instructorId}/photo`,
+        file,
+        onProgress,
       );
-      return data;
     },
     // زي useUpdateInstructor: الصورة متضمّنة جوه رد المستخدمين والكورسات
     // كمان، فلازم نبطل الكاش بتاعهم عشان الصورة الجديدة تظهر من غير refresh

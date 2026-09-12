@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiClient } from "../lib/apiClient";
-import { uploadToPresignedPost } from "../lib/uploadToPresignedPost";
+import { uploadFileToApi } from "../lib/uploadFileToApi";
 import type { Course, CourseDetail, CourseTrack, Faculty, AcademicYear } from "../types/api";
 
 export interface CourseInput {
@@ -79,42 +79,22 @@ export function useDeleteCourse() {
 }
 
 // ============================================================
-// رفع صورة غلاف الكورس — نفس نمط رفع فيديو الدرس بالظبط (useLessons.ts):
-// نطلب presigned POST policy، نرفع الملف عليه مباشرة من المتصفح لـ B2 (من
-// غير ما يعدي على السيرفر بتاعنا)، وبعدين نأكد الرفع عشان نخزّن مفتاح
-// التخزين على الكورس. من غير خطوة تحويل (processing) لأنها صورة مش فيديو.
+// رفع صورة غلاف الكورس — بيعدي على الـ API بتاعنا (نفس الدومين، مفيش CORS)
+// وهو اللي يرفعها لـ B2 من جواه. خطوة واحدة بس، من غير presigned URL ولا
+// تأكيد منفصل.
 // ============================================================
 
-export function useCourseCoverUploadUrl(courseId: string) {
-  return useMutation({
-    mutationFn: async () => {
-      const { data } = await apiClient.post<{
-        uploadUrl: string;
-        uploadFields: Record<string, string>;
-        storageKey: string;
-      }>(`/courses/${courseId}/cover-upload-url`);
-      return data;
-    },
-  });
-}
-
-export function uploadCoverImageFile(
-  uploadUrl: string,
-  uploadFields: Record<string, string>,
-  file: File,
-) {
-  return uploadToPresignedPost(uploadUrl, uploadFields, file);
-}
-
-export function useConfirmCoverUpload(courseId: string) {
+export function useUploadCourseCover(courseId: string) {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async (storageKey: string) => {
-      const { data } = await apiClient.post<Course>(
-        `/courses/${courseId}/confirm-cover-upload`,
-        { storageKey },
-      );
-      return data;
+    mutationFn: async ({
+      file,
+      onProgress,
+    }: {
+      file: File;
+      onProgress?: (percent: number) => void;
+    }) => {
+      return uploadFileToApi<Course>(`/courses/${courseId}/cover`, file, onProgress);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["courses", "admin"] });

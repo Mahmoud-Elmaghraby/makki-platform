@@ -1,19 +1,13 @@
 import { useRef, useState } from "react";
 import { User as UserIcon, UploadCloud, RefreshCw } from "lucide-react";
 import { Spinner } from "./ui";
-import {
-  useInstructorPhotoUploadUrl,
-  useConfirmInstructorPhotoUpload,
-  uploadInstructorPhotoFile,
-} from "../hooks/useInstructors";
+import { useUploadInstructorPhoto } from "../hooks/useInstructors";
 import { useToast } from "./ToastContext";
 import { extractErrorMessage } from "../lib/apiClient";
 
-type Phase = "idle" | "uploading" | "confirming";
-
 /**
- * رفع/تغيير صورة المدرب الشخصية مباشرة من جهاز الأدمن — نفس نمط رفع صورة
- * غلاف الكورس بالظبط (presigned PUT لـ B2). بتتعرض في نافذة تعديل المستخدم
+ * رفع/تغيير صورة المدرب الشخصية مباشرة من جهاز الأدمن — بتعدي على الـ API
+ * بتاعنا وهو اللي يرفعها لـ B2 من جواه. بتتعرض في نافذة تعديل المستخدم
  * (UserFormModal) لأنها محتاجة instructorId موجود بالفعل — يعني متاحة بس وقت
  * تعديل حساب مدرب موجود، مش وقت إنشاء حساب جديد لسه ماتحفظش.
  */
@@ -26,32 +20,27 @@ export function InstructorPhotoUploadControl({
 }) {
   const toast = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [phase, setPhase] = useState<Phase>("idle");
+  const [busy, setBusy] = useState(false);
   // بنحتفظ بمعاينة محلية عشان الصورة الجديدة تظهر فورًا هنا حتى لو الفورم
   // اللي فاتح منه (UserFormModal) مبيتحدّثش بالـ prop الجديدة إلا لما يتفتح
   // تاني — نفس مصدر الحقيقة الأصلي (query cache) بيتحدّث برضه في الخلفية.
   const [localPhotoUrl, setLocalPhotoUrl] = useState(photoUrl);
 
-  const getUploadUrl = useInstructorPhotoUploadUrl(instructorId);
-  const confirmUpload = useConfirmInstructorPhotoUpload(instructorId);
+  const uploadPhoto = useUploadInstructorPhoto(instructorId);
 
   async function handleFileChange(file: File) {
-    setPhase("uploading");
+    setBusy(true);
     try {
-      const { uploadUrl, uploadFields, storageKey } = await getUploadUrl.mutateAsync();
-      await uploadInstructorPhotoFile(uploadUrl, uploadFields, file);
-      setPhase("confirming");
-      const updated = await confirmUpload.mutateAsync(storageKey);
+      const updated = await uploadPhoto.mutateAsync({ file });
       setLocalPhotoUrl(updated.photoUrl);
       toast.success("اتحفظت صورة المدرب");
     } catch (err) {
       toast.error(extractErrorMessage(err));
     } finally {
-      setPhase("idle");
+      setBusy(false);
     }
   }
 
-  const busy = phase !== "idle";
 
   return (
     <div className="flex items-center gap-3">
@@ -84,9 +73,7 @@ export function InstructorPhotoUploadControl({
       >
         {localPhotoUrl ? <RefreshCw className="h-3.5 w-3.5" /> : <UploadCloud className="h-3.5 w-3.5" />}
         {busy
-          ? phase === "uploading"
-            ? "بيترفع..."
-            : "بيتأكد..."
+          ? "بيترفع..."
           : localPhotoUrl
             ? "تغيير الصورة"
             : "رفع صورة"}

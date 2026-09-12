@@ -1,10 +1,6 @@
-import {
-  Injectable,
-  NotFoundException,
-  ConflictException,
-  ForbiddenException,
-} from '@nestjs/common';
+import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
+import * as fs from 'fs';
 import { PrismaService } from '../prisma/prisma.service';
 import { B2StorageService } from '../storage/b2-storage.service';
 import { CreateInstructorDto } from './dto/create-instructor.dto';
@@ -85,25 +81,17 @@ export class InstructorService {
     return instructor;
   }
 
-  // رفع صورة المدرب الشخصية — نفس نمط رفع صورة غلاف الكورس بالظبط (presigned
-  // PUT مباشر لـ B2 من غير ما الصورة تعدي على السيرفر بتاعنا). المفتاح ثابت
-  // لكل مدرب (instructor-photos/{id})، فإعادة الرفع بتستبدل نفس الملف على B2
-  // تلقائيًا. بنخزّن رابط الصورة الجاهز (عن طريق MediaController) مباشرة في
-  // عمود photoUrl الموجود بالفعل — نفس العمود اللي كان بياخد رابط خارجي يدوي
-  // قبل كده، فمفيش داعي لعمود جديد ولا لتعديل أي مكان تاني بيرجّع photoUrl.
-  async getPhotoUploadUrl(id: string) {
+  // رفع صورة المدرب الشخصية — الملف بييجي من multer (مسار مؤقت)، بنرفعه
+  // لـ B2 من هنا. المفتاح ثابت لكل مدرب (instructor-photos/{id})، فإعادة
+  // الرفع بتستبدل نفس الملف على B2 تلقائيًا. بنخزّن رابط الصورة الجاهز (عن
+  // طريق MediaController) مباشرة في عمود photoUrl الموجود بالفعل.
+  async uploadPhoto(id: string, file: Express.Multer.File) {
     await this.ensureExists(id);
     const storageKey = `instructor-photos/${id}`;
-    const { url, fields } = await this.b2.getPresignedPostPolicy(storageKey, {
-      maxSizeBytes: 8 * 1024 * 1024, // 8MB كفاية جدًا لصورة شخصية
-    });
-    return { uploadUrl: url, uploadFields: fields, storageKey };
-  }
-
-  async confirmPhotoUpload(id: string, storageKey: string) {
-    await this.ensureExists(id);
-    if (storageKey !== `instructor-photos/${id}`) {
-      throw new ForbiddenException('مفتاح الرفع مش متطابق مع المدرب ده');
+    try {
+      await this.b2.uploadFile(storageKey, file.path, file.mimetype);
+    } finally {
+      await fs.promises.unlink(file.path).catch(() => {});
     }
     const apiBase = process.env.API_PUBLIC_URL;
     const encoded = Buffer.from(storageKey).toString('base64url');

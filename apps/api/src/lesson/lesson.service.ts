@@ -4,6 +4,7 @@ import {
   UnauthorizedException,
   ForbiddenException,
 } from '@nestjs/common';
+import * as fs from 'fs';
 import { PrismaService } from '../prisma/prisma.service';
 import { B2StorageService } from '../storage/b2-storage.service';
 import { TranscodeQueueService } from '../transcode/transcode-queue.service';
@@ -53,47 +54,40 @@ export class LessonService {
       },
     });
 
-    const storageKey = `lessons/${lesson.id}/source`;
-    const { url, fields } = await this.b2.getPresignedPostPolicy(storageKey);
-    await this.prisma.lesson.update({
-      where: { id: lesson.id },
-      data: { storageKey },
-    });
-
-    return { lesson: { ...lesson, storageKey }, uploadUrl: url, uploadFields: fields };
+    // الفيديو نفسه بيترفع في خطوة منفصلة بعد كده (uploadVideo) — مفيش
+    // storageKey جاهز أو رابط رفع مباشر من هنا، الأدمن بيختار الملف من
+    // الواجهة وبيتبعت عن طريق endpoint الرفع.
+    return { lesson };
   }
 
   /**
-   * رابط رفع جديد لنفس مفتاح التخزين (storageKey) بتاع الدرس — للحالات اللي
-   * الأدمن بيرفع الفيديو بعد إنشاء الدرس بفترة، أو بيعيد المحاولة بعد فشل
-   * الرفع الأول. الرابط اللي اترجع وقت createForCourse بيصلاحيته ساعة بس.
+   * رفع فيديو الدرس — الملف بييجي من multer (مسار مؤقت على قرص السيرفر)،
+   * بنرفعه لـ B2 من هنا وبعدين نجدول التحويل (transcode) فورًا. بتشتغل
+   * لأول رفع ولإعادة الرفع (retry) بنفس الطريقة، لأن storageKey بيتحسب من
+   * lessonId نفسه فمش بيتغيّر.
    */
-  async getUploadUrl(courseId: string, lessonId: string, actor: Actor) {
+  async uploadVideo(
+    courseId: string,
+    lessonId: string,
+    file: Express.Multer.File,
+    actor: Actor,
+  ) {
     await this.ownership.assertCourseOwnership(courseId, actor);
-    const lesson = await this.ensureLessonInCourse(courseId, lessonId);
-    if (!lesson.storageKey) {
-      throw new NotFoundException('الدرس ده لسه معملوش تجهيز لرفع فيديو');
-    }
-    const { url, fields } = await this.b2.getPresignedPostPolicy(lesson.storageKey);
-    return { uploadUrl: url, uploadFields: fields };
-  }
+    await this.ensureLessonInCourse(courseId, lessonId);
 
-  async confirmUpload(courseId: string, lessonId: string, actor: Actor) {
-    await this.ownership.assertCourseOwnership(courseId, actor);
-    const lesson = await this.ensureLessonInCourse(courseId, lessonId);
-    if (!lesson.storageKey) {
-      throw new NotFoundException('الدرس ده لسه معملوش رفع فيديو');
+    const storageKey = `lessons/${lessonId}/source`;
+    try {
+      await this.b2.uploadFile(storageKey, file.path, file.mimetype);
+    } finally {
+      await fs.promises.unlink(file.path).catch(() => {});
     }
 
     await this.prisma.lesson.update({
       where: { id: lessonId },
-      data: { videoReady: false, videoFailed: false },
+      data: { storageKey, videoReady: false, videoFailed: false },
     });
 
-    await this.transcodeQueue.enqueue({
-      lessonId,
-      sourceKey: lesson.storageKey,
-    });
+    await this.transcodeQueue.enqueue({ lessonId, sourceKey: storageKey });
     return { queued: true };
   }
 

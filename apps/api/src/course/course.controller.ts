@@ -8,8 +8,13 @@ import {
   Delete,
   Query,
   UseGuards,
+  UseInterceptors,
+  UploadedFile,
   Req,
 } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { diskStorage } from 'multer';
+import * as os from 'os';
 import { Request } from 'express';
 import { CourseService } from './course.service';
 import { CreateCourseDto, UpdateCourseDto } from './dto/course.dto';
@@ -81,23 +86,23 @@ export class CourseController {
     return this.courseService.remove(id, req.user);
   }
 
-  // رفع صورة غلاف الكورس — نفس نمط رفع الفيديو بالظبط (presigned PUT مباشر
-  // لـ B2 من غير ما الصورة تعدي على السيرفر بتاعنا)، بس من غير خطوة تحويل.
+  // رفع صورة غلاف الكورس — بتعدي على السيرفر بتاعنا (multer) وبعدين السيرفر
+  // هو اللي يرفعها لـ B2 من غير أي رفع مباشر من المتصفح (كان بيتعمل بـ
+  // presigned POST قبل كده، لكن B2 بترفض preflight الـ CORS بتاعه بـ 403).
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ADMIN, Role.MANAGER, Role.INSTRUCTOR)
-  @Post(':id/cover-upload-url')
-  getCoverUploadUrl(@Param('id') id: string, @Req() req: ActorRequest) {
-    return this.courseService.getCoverUploadUrl(id, req.user);
-  }
-
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.ADMIN, Role.MANAGER, Role.INSTRUCTOR)
-  @Post(':id/confirm-cover-upload')
-  confirmCoverUpload(
+  @Post(':id/cover')
+  @UseInterceptors(
+    FileInterceptor('file', {
+      storage: diskStorage({ destination: os.tmpdir() }),
+      limits: { fileSize: 8 * 1024 * 1024 }, // 8MB كفاية جدًا لصورة غلاف
+    }),
+  )
+  uploadCover(
     @Param('id') id: string,
-    @Body('storageKey') storageKey: string,
+    @UploadedFile() file: Express.Multer.File,
     @Req() req: ActorRequest,
   ) {
-    return this.courseService.confirmCoverUpload(id, storageKey, req.user);
+    return this.courseService.uploadCover(id, file, req.user);
   }
 }

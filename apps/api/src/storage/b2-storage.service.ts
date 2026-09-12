@@ -101,6 +101,15 @@ export class B2StorageService {
     });
   }
 
+  /**
+   * رفع ملف من مسار محلي (اللي multer بيكتبه مؤقتًا على قرص السيرفر) لـ B2 —
+   * دي بقت الطريقة الأساسية لكل رفع (كوفر/صورة مدرب/فيديو/مرفق) بعد ما
+   * ثبت إن B2 بترفض preflight (OPTIONS) بـ 403 لأي رفع مباشر من المتصفح
+   * (PUT أو POST) — راجع getPresignedPostPolicy فوق لتفاصيل المحاولة اللي
+   * فشلت. الرفع دلوقتي بيعدي على السيرفر بتاعنا (multer diskStorage) وبعدين
+   * السيرفر هو اللي يرفعه لـ B2 من غير أي متصفح في النص، فمشكلة الـ CORS
+   * مالهاش وجود خالص هنا.
+   */
   getPresignedGetUrl(key: string, expiresInSeconds: number) {
     return getSignedUrl(
       this.deliveryClient,
