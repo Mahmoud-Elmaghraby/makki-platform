@@ -8,21 +8,18 @@ import { extractErrorMessage } from "../lib/apiClient";
 type Phase = "idle" | "uploading" | "confirming" | "processing" | "done" | "failed";
 
 /**
- * تحكم رفع/إعادة رفع فيديو الدرس. لو معاه initialUploadUrl (جاي من رد
- * إنشاء الدرس مباشرة) بيستخدمه من غير طلب إضافي؛ غير كده بيطلب رابط رفع
- * جديد أول ما المستخدم يختار ملف.
+ * تحكم رفع/إعادة رفع فيديو الدرس. بيطلب رابط رفع (presigned POST) جديد
+ * أول ما المستخدم يختار ملف.
  */
 export function VideoUploadControl({
   courseId,
   lessonId,
-  initialUploadUrl,
   videoReady,
   videoFailed,
   onDone,
 }: {
   courseId: string;
   lessonId: string;
-  initialUploadUrl?: string;
   videoReady?: boolean;
   videoFailed?: boolean;
   onDone?: () => void;
@@ -51,8 +48,8 @@ export function VideoUploadControl({
     setPhase("uploading");
     setProgress(0);
     try {
-      const uploadUrl = initialUploadUrl ?? (await getUploadUrl.mutateAsync(lessonId));
-      await uploadVideoFile(uploadUrl, file, setProgress);
+      const { uploadUrl, uploadFields } = await getUploadUrl.mutateAsync(lessonId);
+      await uploadVideoFile(uploadUrl, uploadFields, file, setProgress);
       setPhase("confirming");
       await confirmUpload.mutateAsync(lessonId);
       setPhase("processing");

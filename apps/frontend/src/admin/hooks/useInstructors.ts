@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiClient } from "../lib/apiClient";
+import { uploadToPresignedPost } from "../lib/uploadToPresignedPost";
 import type { Instructor } from "../types/api";
 
 export interface InstructorInput {
@@ -63,7 +64,7 @@ export function useDeleteInstructor() {
 
 // ============================================================
 // رفع صورة المدرب الشخصية — نفس نمط رفع صورة غلاف الكورس بالظبط
-// (useCourses.ts): بنطلب presigned PUT URL، بنرفع الملف عليه مباشرة من
+// (useCourses.ts): بنطلب presigned POST policy، بنرفع الملف عليه مباشرة من
 // المتصفح لـ B2 (من غير ما يعدي على السيرفر بتاعنا)، وبعدين بنأكد الرفع
 // عشان يتخزن رابط الصورة الجاهز على المدرب.
 // ============================================================
@@ -71,19 +72,22 @@ export function useDeleteInstructor() {
 export function useInstructorPhotoUploadUrl(instructorId: string) {
   return useMutation({
     mutationFn: async () => {
-      const { data } = await apiClient.post<{ uploadUrl: string; storageKey: string }>(
-        `/instructors/${instructorId}/photo-upload-url`,
-      );
+      const { data } = await apiClient.post<{
+        uploadUrl: string;
+        uploadFields: Record<string, string>;
+        storageKey: string;
+      }>(`/instructors/${instructorId}/photo-upload-url`);
       return data;
     },
   });
 }
 
-export function uploadInstructorPhotoFile(uploadUrl: string, file: File) {
-  return fetch(uploadUrl, { method: "PUT", body: file }).then((res) => {
-    if (!res.ok) throw new Error("فشل رفع الصورة، حاول تاني");
-    return res;
-  });
+export function uploadInstructorPhotoFile(
+  uploadUrl: string,
+  uploadFields: Record<string, string>,
+  file: File,
+) {
+  return uploadToPresignedPost(uploadUrl, uploadFields, file);
 }
 
 export function useConfirmInstructorPhotoUpload(instructorId: string) {

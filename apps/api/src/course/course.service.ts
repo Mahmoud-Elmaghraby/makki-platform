@@ -63,8 +63,10 @@ export class CourseService {
     const course = await this.ensureExists(id);
     this.assertOwnership(course.instructorId, actor);
     const storageKey = `covers/${id}`;
-    const uploadUrl = await this.b2.getPresignedPutUrl(storageKey);
-    return { uploadUrl, storageKey };
+    const { url, fields } = await this.b2.getPresignedPostPolicy(storageKey, {
+      maxSizeBytes: 8 * 1024 * 1024, // 8MB كفاية جدًا لصورة غلاف
+    });
+    return { uploadUrl: url, uploadFields: fields, storageKey };
   }
 
   async confirmCoverUpload(id: string, storageKey: string, actor: Actor) {

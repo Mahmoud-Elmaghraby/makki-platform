@@ -34,8 +34,8 @@ export function CourseCoverUploadControl({
   async function handleFileChange(file: File) {
     setPhase("uploading");
     try {
-      const { uploadUrl, storageKey } = await getUploadUrl.mutateAsync();
-      await uploadCoverImageFile(uploadUrl, file);
+      const { uploadUrl, uploadFields, storageKey } = await getUploadUrl.mutateAsync();
+      await uploadCoverImageFile(uploadUrl, uploadFields, file);
       setPhase("confirming");
       await confirmUpload.mutateAsync(storageKey);
       toast.success("اتحفظت صورة الغلاف");

@@ -54,13 +54,13 @@ export class LessonService {
     });
 
     const storageKey = `lessons/${lesson.id}/source`;
-    const uploadUrl = await this.b2.getPresignedPutUrl(storageKey);
+    const { url, fields } = await this.b2.getPresignedPostPolicy(storageKey);
     await this.prisma.lesson.update({
       where: { id: lesson.id },
       data: { storageKey },
     });
 
-    return { lesson: { ...lesson, storageKey }, uploadUrl };
+    return { lesson: { ...lesson, storageKey }, uploadUrl: url, uploadFields: fields };
   }
 
   /**
@@ -74,8 +74,8 @@ export class LessonService {
     if (!lesson.storageKey) {
       throw new NotFoundException('الدرس ده لسه معملوش تجهيز لرفع فيديو');
     }
-    const uploadUrl = await this.b2.getPresignedPutUrl(lesson.storageKey);
-    return { uploadUrl };
+    const { url, fields } = await this.b2.getPresignedPostPolicy(lesson.storageKey);
+    return { uploadUrl: url, uploadFields: fields };
   }
 
   async confirmUpload(courseId: string, lessonId: string, actor: Actor) {

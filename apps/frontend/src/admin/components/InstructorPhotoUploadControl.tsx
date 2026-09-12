@@ -38,8 +38,8 @@ export function InstructorPhotoUploadControl({
   async function handleFileChange(file: File) {
     setPhase("uploading");
     try {
-      const { uploadUrl, storageKey } = await getUploadUrl.mutateAsync();
-      await uploadInstructorPhotoFile(uploadUrl, file);
+      const { uploadUrl, uploadFields, storageKey } = await getUploadUrl.mutateAsync();
+      await uploadInstructorPhotoFile(uploadUrl, uploadFields, file);
       setPhase("confirming");
       const updated = await confirmUpload.mutateAsync(storageKey);
       setLocalPhotoUrl(updated.photoUrl);

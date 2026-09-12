@@ -33,9 +33,7 @@ export function LessonFormModal({
 
   // بعد إنشاء الدرس بنجاح، بنحط بياناته هنا عشان نعرض تحكم رفع الفيديو
   // جوه نفس المودال من غير ما نقفله.
-  const [createdLesson, setCreatedLesson] = useState<{ id: string; uploadUrl: string } | null>(
-    null,
-  );
+  const [createdLesson, setCreatedLesson] = useState<{ id: string } | null>(null);
 
   function reset() {
     setTitle("");
@@ -68,7 +66,7 @@ export function LessonFormModal({
         toast.success("تم حفظ التعديلات");
         handleClose();
       } else {
-        const { lesson: created, uploadUrl } = await createLesson.mutateAsync({
+        const { lesson: created } = await createLesson.mutateAsync({
           title,
           description: description || undefined,
           order: Number(order) || 0,
@@ -77,7 +75,7 @@ export function LessonFormModal({
           sectionId,
         });
         toast.success("تم إنشاء الدرس — دلوقتي ارفع الفيديو");
-        setCreatedLesson({ id: created.id, uploadUrl });
+        setCreatedLesson({ id: created.id });
       }
     } catch (err) {
       setError(extractErrorMessage(err));
@@ -97,11 +95,7 @@ export function LessonFormModal({
             الدرس اتعمل بنجاح. دلوقتي ارفع ملف الفيديو (أو اقفل واعمل ده بعدين من زرار
             "رفع فيديو" جنب الدرس).
           </p>
-          <VideoUploadControl
-            courseId={courseId}
-            lessonId={createdLesson.id}
-            initialUploadUrl={createdLesson.uploadUrl}
-          />
+          <VideoUploadControl courseId={courseId} lessonId={createdLesson.id} />
           <div className="flex justify-end pt-2">
             <Button onClick={handleClose}>تم</Button>
           </div>

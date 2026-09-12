@@ -94,8 +94,10 @@ export class InstructorService {
   async getPhotoUploadUrl(id: string) {
     await this.ensureExists(id);
     const storageKey = `instructor-photos/${id}`;
-    const uploadUrl = await this.b2.getPresignedPutUrl(storageKey);
-    return { uploadUrl, storageKey };
+    const { url, fields } = await this.b2.getPresignedPostPolicy(storageKey, {
+      maxSizeBytes: 8 * 1024 * 1024, // 8MB كفاية جدًا لصورة شخصية
+    });
+    return { uploadUrl: url, uploadFields: fields, storageKey };
   }
 
   async confirmPhotoUpload(id: string, storageKey: string) {

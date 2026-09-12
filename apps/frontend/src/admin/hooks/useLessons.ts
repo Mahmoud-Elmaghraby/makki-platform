@@ -1,6 +1,12 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiClient } from "../lib/apiClient";
+import { uploadToPresignedPost } from "../lib/uploadToPresignedPost";
 import type { Lesson } from "../types/api";
+
+interface UploadUrlResponse {
+  uploadUrl: string;
+  uploadFields: Record<string, string>;
+}
 
 export interface LessonInput {
   title: string;
@@ -22,7 +28,7 @@ export function useCreateLesson(courseId: string) {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (input: LessonInput) => {
-      const { data } = await apiClient.post<{ lesson: Lesson; uploadUrl: string }>(
+      const { data } = await apiClient.post<{ lesson: Lesson } & UploadUrlResponse>(
         `/courses/${courseId}/lessons`,
         input,
       );
@@ -35,30 +41,27 @@ export function useCreateLesson(courseId: string) {
 export function useLessonUploadUrl(courseId: string) {
   return useMutation({
     mutationFn: async (lessonId: string) => {
-      const { data } = await apiClient.post<{ uploadUrl: string }>(
+      const { data } = await apiClient.post<UploadUrlResponse>(
         `/courses/${courseId}/lessons/${lessonId}/upload-url`,
       );
-      return data.uploadUrl;
+      return data;
     },
   });
 }
 
 /**
- * بيرفع الفيديو مباشرة على B2 عن طريق presigned URL — مش عن طريق الـ API
- * (عشان الفيديو الكبير ميعديش على السيرفر بتاعنا). ملحوظة تجهيز: لازم الـ
- * bucket على B2 يكون فيه CORS rule بيسمح بـ PUT من دومين الفرونت إند، وإلا
- * الطلب هيتعمله رفض من المتصفح قبل ما يوصل لـ B2 أصلًا.
+ * بيرفع الفيديو مباشرة على B2 عن طريق presigned **POST** policy — مش عن
+ * طريق الـ API (عشان الفيديو الكبير ميعديش على السيرفر بتاعنا)، ومش presigned
+ * PUT (عشان طلب PUT بيفرض CORS preflight دايمًا، وB2 بيرفضه — راجع
+ * uploadToPresignedPost.ts للتفاصيل).
  */
 export function uploadVideoFile(
   uploadUrl: string,
+  uploadFields: Record<string, string>,
   file: File,
   onProgress?: (percent: number) => void,
 ) {
-  return fetch(uploadUrl, { method: "PUT", body: file }).then(async (res) => {
-    onProgress?.(100);
-    if (!res.ok) throw new Error("فشل رفع الفيديو، حاول تاني");
-    return res;
-  });
+  return uploadToPresignedPost(uploadUrl, uploadFields, file, onProgress);
 }
 
 export function useConfirmUpload(courseId: string) {

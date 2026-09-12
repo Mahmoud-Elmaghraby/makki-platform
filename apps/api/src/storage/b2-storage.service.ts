@@ -9,8 +9,10 @@ import {
   DeleteObjectsCommand,
 } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
+import { createPresignedPost } from '@aws-sdk/s3-presigned-post';
 
 const DELETE_BATCH_SIZE = 1000;
+const DEFAULT_MAX_UPLOAD_BYTES = 5 * 1024 * 1024 * 1024; // 5GB — كفاية لأي فيديو درس
 
 // منقول من new-mistak (C:\Projects\new-mistak) بتصريح صريح من صاحب المشروع.
 // راجع docs/reuse-plan.md لتفاصيل القرار.
@@ -74,6 +76,29 @@ export class B2StorageService {
       new PutObjectCommand({ Bucket: this.bucket, Key: key }),
       { expiresIn: expiresInSeconds },
     );
+  }
+
+  /**
+   * بديل presigned **POST** بدل presigned PUT للرفع المباشر من المتصفح لـ B2.
+   * السبب: طلب PUT من المتصفح بيفرض preflight (OPTIONS) دايمًا، وB2 (على
+   * عكس Amazon S3 الأصلي) بيرفض طلب الـ OPTIONS ده بـ 403 قبل حتى ما يوصل
+   * لمرحلة تقييم قاعدة الـ CORS بتاعة الـ bucket — قيد موثّق في B2 مفيش منه
+   * حل من ناحية إعدادات الـ bucket. رفع POST بصيغة FormData بيتصنّف "طلب
+   * بسيط" عند المتصفح (POST + multipart/form-data من غير هيدرز مخصّصة)،
+   * فمش بيحتاج preflight خالص، وبكده بيتجنب المشكلة من أساسها.
+   */
+  async getPresignedPostPolicy(
+    key: string,
+    options: { maxSizeBytes?: number; expiresInSeconds?: number } = {},
+  ) {
+    const { maxSizeBytes = DEFAULT_MAX_UPLOAD_BYTES, expiresInSeconds = 60 * 60 } = options;
+
+    return createPresignedPost(this.uploadClient, {
+      Bucket: this.bucket,
+      Key: key,
+      Conditions: [['content-length-range', 0, maxSizeBytes]],
+      Expires: expiresInSeconds,
+    });
   }
 
   getPresignedGetUrl(key: string, expiresInSeconds: number) {
