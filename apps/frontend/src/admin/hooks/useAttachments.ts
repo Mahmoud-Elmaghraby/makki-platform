@@ -33,10 +33,11 @@ export function useCreateAttachment(courseId: string) {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (input: AttachmentInput) => {
-      const { data } = await apiClient.post<{ attachment: Attachment; uploadUrl: string }>(
-        `/courses/${courseId}/attachments`,
-        input,
-      );
+      const { data } = await apiClient.post<{
+        attachment: Attachment;
+        uploadUrl: string;
+        uploadFields: Record<string, string>;
+      }>(`/courses/${courseId}/attachments`, input);
       return data;
     },
     onSuccess: () => invalidateCourseContent(queryClient, courseId),

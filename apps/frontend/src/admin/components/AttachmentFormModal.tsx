@@ -38,7 +38,7 @@ export function AttachmentFormModal({
       return;
     }
     try {
-      const { uploadUrl } = await createAttachment.mutateAsync({
+      const { uploadUrl, uploadFields } = await createAttachment.mutateAsync({
         title,
         fileName: file.name,
         fileSizeBytes: file.size,
@@ -46,7 +46,7 @@ export function AttachmentFormModal({
         lessonId: lessonId || undefined,
       });
       setUploading(true);
-      await uploadVideoFile(uploadUrl, file);
+      await uploadVideoFile(uploadUrl, uploadFields, file);
       toast.success("تم رفع المرفق");
       onClose();
     } catch (err) {

@@ -37,8 +37,8 @@ export class AttachmentService {
       },
     });
 
-    const uploadUrl = await this.b2.getPresignedPutUrl(storageKey);
-    return { attachment, uploadUrl };
+    const { url, fields } = await this.b2.getPresignedPostPolicy(storageKey);
+    return { attachment, uploadUrl: url, uploadFields: fields };
   }
 
   async findAllForCourseAdmin(courseId: string, actor: Actor) {
