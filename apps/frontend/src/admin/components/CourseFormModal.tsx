@@ -3,8 +3,15 @@ import { Modal, Field, Input, Textarea, Select, Button, ErrorBanner } from "./ui
 import { useInstructors } from "../hooks/useInstructors";
 import { useAdminAuth } from "../auth/AdminAuthContext";
 import { extractErrorMessage } from "../lib/apiClient";
-import type { Course, CourseTrack, Faculty, AcademicYear } from "../types/api";
-import { FACULTIES, ACADEMIC_YEARS, FACULTY_LABELS, ACADEMIC_YEAR_LABELS } from "../../lib/academicTaxonomy";
+import type { Course, CourseTrack, Faculty, AcademicYear, Term } from "../types/api";
+import {
+  FACULTIES,
+  ACADEMIC_YEARS,
+  FACULTY_LABELS,
+  ACADEMIC_YEAR_LABELS,
+  TERMS,
+  TERM_LABELS,
+} from "../../lib/academicTaxonomy";
 import type { CourseInput } from "../hooks/useCourses";
 
 function slugify(value: string) {
@@ -58,6 +65,7 @@ export function CourseFormModal({
   const [targetAudience, setTargetAudience] = useState(course?.targetAudience ?? "");
   const [faculty, setFaculty] = useState<Faculty | "">(course?.faculty ?? "");
   const [academicYear, setAcademicYear] = useState<AcademicYear | "">(course?.academicYear ?? "");
+  const [term, setTerm] = useState<Term | "">(course?.term ?? "");
   const [priceEGP, setPriceEGP] = useState(course?.priceEGP?.toString() ?? "");
   const [instructorId, setInstructorId] = useState(course?.instructorId ?? "");
   const [isPublished, setIsPublished] = useState(course?.isPublished ?? false);
@@ -83,6 +91,7 @@ export function CourseFormModal({
         track,
         faculty: track === "STUDENT_COURSE" ? faculty || undefined : undefined,
         academicYear: track === "STUDENT_COURSE" ? academicYear || undefined : undefined,
+        term: track === "STUDENT_COURSE" ? term || undefined : undefined,
         priceEGP: Number(priceEGP) || 0,
         instructorId:
           user?.role === "ADMIN" ? instructorId || undefined : undefined,
@@ -197,6 +206,16 @@ export function CourseFormModal({
                 {ACADEMIC_YEARS.map((y) => (
                   <option key={y} value={y}>
                     {ACADEMIC_YEAR_LABELS[y]}
+                  </option>
+                ))}
+              </Select>
+            </Field>
+            <Field label="الترم" hint="اختياري لحد ما يتحدد">
+              <Select value={term} onChange={(e) => setTerm(e.target.value as Term | "")}>
+                <option value="">بدون تحديد</option>
+                {TERMS.map((t) => (
+                  <option key={t} value={t}>
+                    {TERM_LABELS[t]}
                   </option>
                 ))}
               </Select>

@@ -46,6 +46,14 @@ export const AcademicYear = {
 export type AcademicYear = (typeof AcademicYear)[keyof typeof AcademicYear]
 
 
+export const Term = {
+  FIRST_TERM: 'FIRST_TERM',
+  SECOND_TERM: 'SECOND_TERM'
+} as const
+
+export type Term = (typeof Term)[keyof typeof Term]
+
+
 export const CheckpointQuestionType = {
   MULTIPLE_CHOICE: 'MULTIPLE_CHOICE',
   TRUE_FALSE: 'TRUE_FALSE'

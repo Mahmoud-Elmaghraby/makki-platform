@@ -9,7 +9,7 @@ export default function Footer() {
         <div>
           <div className="flex items-center gap-2">
             <img src="/logo.png" alt="شركة مكي وشركاؤه" className="h-9 w-9 object-contain" />
-            <span className="text-lg font-extrabold text-white">شركة مكي وشركاؤه</span>
+            <span className="text-lg font-extrabold whitespace-nowrap text-white">شركة مكي وشركاؤه</span>
           </div>
           <p className="mt-4 max-w-xs text-sm leading-7 text-white/50">
             مكتب محاماة موثوق يقدم حلولاً قانونية واضحة وشخصية لكل عميل.

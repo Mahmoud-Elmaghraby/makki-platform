@@ -36,9 +36,10 @@ export class CourseController {
     @Query('track') track?: string,
     @Query('faculty') faculty?: string,
     @Query('academicYear') academicYear?: string,
+    @Query('term') term?: string,
     @Query('q') q?: string,
   ) {
-    return this.courseService.findPublished(track, faculty, academicYear, q);
+    return this.courseService.findPublished(track, faculty, academicYear, term, q);
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)

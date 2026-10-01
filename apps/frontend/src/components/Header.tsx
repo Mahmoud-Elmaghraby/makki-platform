@@ -39,7 +39,7 @@ export default function Header() {
           <NavLink to="/" className="flex shrink-0 items-center gap-3">
             <img src="/logo.png" alt="شركة مكي وشركاؤه" className="h-14 w-14 object-contain" />
             <div>
-              <div className="text-lg font-extrabold text-white">شركة مكي وشركاؤه</div>
+              <div className="text-lg font-extrabold whitespace-nowrap text-white">شركة مكي وشركاؤه</div>
               <div className="flex items-center gap-2 text-xs font-semibold text-(--color-gold)">
                 <span className="h-px w-4 bg-(--color-gold)/70" />
                 محاماة · استشارات · تأهيل وتدريب

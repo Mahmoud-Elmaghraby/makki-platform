@@ -94,11 +94,12 @@ model Course {
   requirements        String[] @default([])
   targetAudience      String?
   track         CourseTrack
-  // faculty/academicYear بيتحطوا بس على كورسات "قسم كورسات الكليات" (طالب
-  // كلية حقوق/شريعة وقانون) — بيفضلوا null لكورسات LAWYER_TRAINING ولأي
-  // كورس دراسات عليا لسه التصنيف بتاعه ما اتحددش.
+  // faculty/academicYear/term بيتحطوا بس على كورسات "قسم كورسات الكليات"
+  // (طالب كلية حقوق/شريعة وقانون) — بيفضلوا null لكورسات LAWYER_TRAINING
+  // ولأي كورس دراسات عليا لسه التصنيف بتاعه ما اتحددش.
   faculty       Faculty?
   academicYear  AcademicYear?
+  term          Term?
   priceEGP      Int
   isPublished   Boolean      @default(false)
   instructor    Instructor?  @relation(fields: [instructorId], references: [id])
@@ -126,6 +127,13 @@ enum AcademicYear {
   YEAR_2
   YEAR_3
   YEAR_4
+}
+
+// تقسيم الكورس حسب الترم الدراسي — فلتر إضافي جنب الكلية والفرقة، بيتحط
+// بس على كورسات "قسم كورسات الكليات" زي faculty/academicYear بالظبط.
+enum Term {
+  FIRST_TERM
+  SECOND_TERM
 }
 
 // قسم/فصل — بيدعم التداخل (قسم جوه قسم) عن طريق parent/children.

@@ -45,6 +45,7 @@ export type CourseMinAggregateOutputType = {
   track: $Enums.CourseTrack | null
   faculty: $Enums.Faculty | null
   academicYear: $Enums.AcademicYear | null
+  term: $Enums.Term | null
   priceEGP: number | null
   isPublished: boolean | null
   instructorId: string | null
@@ -63,6 +64,7 @@ export type CourseMaxAggregateOutputType = {
   track: $Enums.CourseTrack | null
   faculty: $Enums.Faculty | null
   academicYear: $Enums.AcademicYear | null
+  term: $Enums.Term | null
   priceEGP: number | null
   isPublished: boolean | null
   instructorId: string | null
@@ -83,6 +85,7 @@ export type CourseCountAggregateOutputType = {
   track: number
   faculty: number
   academicYear: number
+  term: number
   priceEGP: number
   isPublished: number
   instructorId: number
@@ -111,6 +114,7 @@ export type CourseMinAggregateInputType = {
   track?: true
   faculty?: true
   academicYear?: true
+  term?: true
   priceEGP?: true
   isPublished?: true
   instructorId?: true
@@ -129,6 +133,7 @@ export type CourseMaxAggregateInputType = {
   track?: true
   faculty?: true
   academicYear?: true
+  term?: true
   priceEGP?: true
   isPublished?: true
   instructorId?: true
@@ -149,6 +154,7 @@ export type CourseCountAggregateInputType = {
   track?: true
   faculty?: true
   academicYear?: true
+  term?: true
   priceEGP?: true
   isPublished?: true
   instructorId?: true
@@ -256,6 +262,7 @@ export type CourseGroupByOutputType = {
   track: $Enums.CourseTrack
   faculty: $Enums.Faculty | null
   academicYear: $Enums.AcademicYear | null
+  term: $Enums.Term | null
   priceEGP: number
   isPublished: boolean
   instructorId: string | null
@@ -299,6 +306,7 @@ export type CourseWhereInput = {
   track?: Prisma.EnumCourseTrackFilter<"Course"> | $Enums.CourseTrack
   faculty?: Prisma.EnumFacultyNullableFilter<"Course"> | $Enums.Faculty | null
   academicYear?: Prisma.EnumAcademicYearNullableFilter<"Course"> | $Enums.AcademicYear | null
+  term?: Prisma.EnumTermNullableFilter<"Course"> | $Enums.Term | null
   priceEGP?: Prisma.IntFilter<"Course"> | number
   isPublished?: Prisma.BoolFilter<"Course"> | boolean
   instructorId?: Prisma.StringNullableFilter<"Course"> | string | null
@@ -327,6 +335,7 @@ export type CourseOrderByWithRelationInput = {
   track?: Prisma.SortOrder
   faculty?: Prisma.SortOrderInput | Prisma.SortOrder
   academicYear?: Prisma.SortOrderInput | Prisma.SortOrder
+  term?: Prisma.SortOrderInput | Prisma.SortOrder
   priceEGP?: Prisma.SortOrder
   isPublished?: Prisma.SortOrder
   instructorId?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -358,6 +367,7 @@ export type CourseWhereUniqueInput = Prisma.AtLeast<{
   track?: Prisma.EnumCourseTrackFilter<"Course"> | $Enums.CourseTrack
   faculty?: Prisma.EnumFacultyNullableFilter<"Course"> | $Enums.Faculty | null
   academicYear?: Prisma.EnumAcademicYearNullableFilter<"Course"> | $Enums.AcademicYear | null
+  term?: Prisma.EnumTermNullableFilter<"Course"> | $Enums.Term | null
   priceEGP?: Prisma.IntFilter<"Course"> | number
   isPublished?: Prisma.BoolFilter<"Course"> | boolean
   instructorId?: Prisma.StringNullableFilter<"Course"> | string | null
@@ -386,6 +396,7 @@ export type CourseOrderByWithAggregationInput = {
   track?: Prisma.SortOrder
   faculty?: Prisma.SortOrderInput | Prisma.SortOrder
   academicYear?: Prisma.SortOrderInput | Prisma.SortOrder
+  term?: Prisma.SortOrderInput | Prisma.SortOrder
   priceEGP?: Prisma.SortOrder
   isPublished?: Prisma.SortOrder
   instructorId?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -414,6 +425,7 @@ export type CourseScalarWhereWithAggregatesInput = {
   track?: Prisma.EnumCourseTrackWithAggregatesFilter<"Course"> | $Enums.CourseTrack
   faculty?: Prisma.EnumFacultyNullableWithAggregatesFilter<"Course"> | $Enums.Faculty | null
   academicYear?: Prisma.EnumAcademicYearNullableWithAggregatesFilter<"Course"> | $Enums.AcademicYear | null
+  term?: Prisma.EnumTermNullableWithAggregatesFilter<"Course"> | $Enums.Term | null
   priceEGP?: Prisma.IntWithAggregatesFilter<"Course"> | number
   isPublished?: Prisma.BoolWithAggregatesFilter<"Course"> | boolean
   instructorId?: Prisma.StringNullableWithAggregatesFilter<"Course"> | string | null
@@ -434,6 +446,7 @@ export type CourseCreateInput = {
   track: $Enums.CourseTrack
   faculty?: $Enums.Faculty | null
   academicYear?: $Enums.AcademicYear | null
+  term?: $Enums.Term | null
   priceEGP: number
   isPublished?: boolean
   createdAt?: Date | string
@@ -461,6 +474,7 @@ export type CourseUncheckedCreateInput = {
   track: $Enums.CourseTrack
   faculty?: $Enums.Faculty | null
   academicYear?: $Enums.AcademicYear | null
+  term?: $Enums.Term | null
   priceEGP: number
   isPublished?: boolean
   instructorId?: string | null
@@ -488,6 +502,7 @@ export type CourseUpdateInput = {
   track?: Prisma.EnumCourseTrackFieldUpdateOperationsInput | $Enums.CourseTrack
   faculty?: Prisma.NullableEnumFacultyFieldUpdateOperationsInput | $Enums.Faculty | null
   academicYear?: Prisma.NullableEnumAcademicYearFieldUpdateOperationsInput | $Enums.AcademicYear | null
+  term?: Prisma.NullableEnumTermFieldUpdateOperationsInput | $Enums.Term | null
   priceEGP?: Prisma.IntFieldUpdateOperationsInput | number
   isPublished?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -515,6 +530,7 @@ export type CourseUncheckedUpdateInput = {
   track?: Prisma.EnumCourseTrackFieldUpdateOperationsInput | $Enums.CourseTrack
   faculty?: Prisma.NullableEnumFacultyFieldUpdateOperationsInput | $Enums.Faculty | null
   academicYear?: Prisma.NullableEnumAcademicYearFieldUpdateOperationsInput | $Enums.AcademicYear | null
+  term?: Prisma.NullableEnumTermFieldUpdateOperationsInput | $Enums.Term | null
   priceEGP?: Prisma.IntFieldUpdateOperationsInput | number
   isPublished?: Prisma.BoolFieldUpdateOperationsInput | boolean
   instructorId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -542,6 +558,7 @@ export type CourseCreateManyInput = {
   track: $Enums.CourseTrack
   faculty?: $Enums.Faculty | null
   academicYear?: $Enums.AcademicYear | null
+  term?: $Enums.Term | null
   priceEGP: number
   isPublished?: boolean
   instructorId?: string | null
@@ -562,6 +579,7 @@ export type CourseUpdateManyMutationInput = {
   track?: Prisma.EnumCourseTrackFieldUpdateOperationsInput | $Enums.CourseTrack
   faculty?: Prisma.NullableEnumFacultyFieldUpdateOperationsInput | $Enums.Faculty | null
   academicYear?: Prisma.NullableEnumAcademicYearFieldUpdateOperationsInput | $Enums.AcademicYear | null
+  term?: Prisma.NullableEnumTermFieldUpdateOperationsInput | $Enums.Term | null
   priceEGP?: Prisma.IntFieldUpdateOperationsInput | number
   isPublished?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -581,6 +599,7 @@ export type CourseUncheckedUpdateManyInput = {
   track?: Prisma.EnumCourseTrackFieldUpdateOperationsInput | $Enums.CourseTrack
   faculty?: Prisma.NullableEnumFacultyFieldUpdateOperationsInput | $Enums.Faculty | null
   academicYear?: Prisma.NullableEnumAcademicYearFieldUpdateOperationsInput | $Enums.AcademicYear | null
+  term?: Prisma.NullableEnumTermFieldUpdateOperationsInput | $Enums.Term | null
   priceEGP?: Prisma.IntFieldUpdateOperationsInput | number
   isPublished?: Prisma.BoolFieldUpdateOperationsInput | boolean
   instructorId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -619,6 +638,7 @@ export type CourseCountOrderByAggregateInput = {
   track?: Prisma.SortOrder
   faculty?: Prisma.SortOrder
   academicYear?: Prisma.SortOrder
+  term?: Prisma.SortOrder
   priceEGP?: Prisma.SortOrder
   isPublished?: Prisma.SortOrder
   instructorId?: Prisma.SortOrder
@@ -641,6 +661,7 @@ export type CourseMaxOrderByAggregateInput = {
   track?: Prisma.SortOrder
   faculty?: Prisma.SortOrder
   academicYear?: Prisma.SortOrder
+  term?: Prisma.SortOrder
   priceEGP?: Prisma.SortOrder
   isPublished?: Prisma.SortOrder
   instructorId?: Prisma.SortOrder
@@ -659,6 +680,7 @@ export type CourseMinOrderByAggregateInput = {
   track?: Prisma.SortOrder
   faculty?: Prisma.SortOrder
   academicYear?: Prisma.SortOrder
+  term?: Prisma.SortOrder
   priceEGP?: Prisma.SortOrder
   isPublished?: Prisma.SortOrder
   instructorId?: Prisma.SortOrder
@@ -745,6 +767,10 @@ export type NullableEnumFacultyFieldUpdateOperationsInput = {
 
 export type NullableEnumAcademicYearFieldUpdateOperationsInput = {
   set?: $Enums.AcademicYear | null
+}
+
+export type NullableEnumTermFieldUpdateOperationsInput = {
+  set?: $Enums.Term | null
 }
 
 export type IntFieldUpdateOperationsInput = {
@@ -866,6 +892,7 @@ export type CourseCreateWithoutInstructorInput = {
   track: $Enums.CourseTrack
   faculty?: $Enums.Faculty | null
   academicYear?: $Enums.AcademicYear | null
+  term?: $Enums.Term | null
   priceEGP: number
   isPublished?: boolean
   createdAt?: Date | string
@@ -892,6 +919,7 @@ export type CourseUncheckedCreateWithoutInstructorInput = {
   track: $Enums.CourseTrack
   faculty?: $Enums.Faculty | null
   academicYear?: $Enums.AcademicYear | null
+  term?: $Enums.Term | null
   priceEGP: number
   isPublished?: boolean
   createdAt?: Date | string
@@ -947,6 +975,7 @@ export type CourseScalarWhereInput = {
   track?: Prisma.EnumCourseTrackFilter<"Course"> | $Enums.CourseTrack
   faculty?: Prisma.EnumFacultyNullableFilter<"Course"> | $Enums.Faculty | null
   academicYear?: Prisma.EnumAcademicYearNullableFilter<"Course"> | $Enums.AcademicYear | null
+  term?: Prisma.EnumTermNullableFilter<"Course"> | $Enums.Term | null
   priceEGP?: Prisma.IntFilter<"Course"> | number
   isPublished?: Prisma.BoolFilter<"Course"> | boolean
   instructorId?: Prisma.StringNullableFilter<"Course"> | string | null
@@ -967,6 +996,7 @@ export type CourseCreateWithoutSectionsInput = {
   track: $Enums.CourseTrack
   faculty?: $Enums.Faculty | null
   academicYear?: $Enums.AcademicYear | null
+  term?: $Enums.Term | null
   priceEGP: number
   isPublished?: boolean
   createdAt?: Date | string
@@ -993,6 +1023,7 @@ export type CourseUncheckedCreateWithoutSectionsInput = {
   track: $Enums.CourseTrack
   faculty?: $Enums.Faculty | null
   academicYear?: $Enums.AcademicYear | null
+  term?: $Enums.Term | null
   priceEGP: number
   isPublished?: boolean
   instructorId?: string | null
@@ -1035,6 +1066,7 @@ export type CourseUpdateWithoutSectionsInput = {
   track?: Prisma.EnumCourseTrackFieldUpdateOperationsInput | $Enums.CourseTrack
   faculty?: Prisma.NullableEnumFacultyFieldUpdateOperationsInput | $Enums.Faculty | null
   academicYear?: Prisma.NullableEnumAcademicYearFieldUpdateOperationsInput | $Enums.AcademicYear | null
+  term?: Prisma.NullableEnumTermFieldUpdateOperationsInput | $Enums.Term | null
   priceEGP?: Prisma.IntFieldUpdateOperationsInput | number
   isPublished?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1061,6 +1093,7 @@ export type CourseUncheckedUpdateWithoutSectionsInput = {
   track?: Prisma.EnumCourseTrackFieldUpdateOperationsInput | $Enums.CourseTrack
   faculty?: Prisma.NullableEnumFacultyFieldUpdateOperationsInput | $Enums.Faculty | null
   academicYear?: Prisma.NullableEnumAcademicYearFieldUpdateOperationsInput | $Enums.AcademicYear | null
+  term?: Prisma.NullableEnumTermFieldUpdateOperationsInput | $Enums.Term | null
   priceEGP?: Prisma.IntFieldUpdateOperationsInput | number
   isPublished?: Prisma.BoolFieldUpdateOperationsInput | boolean
   instructorId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1087,6 +1120,7 @@ export type CourseCreateWithoutLessonsInput = {
   track: $Enums.CourseTrack
   faculty?: $Enums.Faculty | null
   academicYear?: $Enums.AcademicYear | null
+  term?: $Enums.Term | null
   priceEGP: number
   isPublished?: boolean
   createdAt?: Date | string
@@ -1113,6 +1147,7 @@ export type CourseUncheckedCreateWithoutLessonsInput = {
   track: $Enums.CourseTrack
   faculty?: $Enums.Faculty | null
   academicYear?: $Enums.AcademicYear | null
+  term?: $Enums.Term | null
   priceEGP: number
   isPublished?: boolean
   instructorId?: string | null
@@ -1155,6 +1190,7 @@ export type CourseUpdateWithoutLessonsInput = {
   track?: Prisma.EnumCourseTrackFieldUpdateOperationsInput | $Enums.CourseTrack
   faculty?: Prisma.NullableEnumFacultyFieldUpdateOperationsInput | $Enums.Faculty | null
   academicYear?: Prisma.NullableEnumAcademicYearFieldUpdateOperationsInput | $Enums.AcademicYear | null
+  term?: Prisma.NullableEnumTermFieldUpdateOperationsInput | $Enums.Term | null
   priceEGP?: Prisma.IntFieldUpdateOperationsInput | number
   isPublished?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1181,6 +1217,7 @@ export type CourseUncheckedUpdateWithoutLessonsInput = {
   track?: Prisma.EnumCourseTrackFieldUpdateOperationsInput | $Enums.CourseTrack
   faculty?: Prisma.NullableEnumFacultyFieldUpdateOperationsInput | $Enums.Faculty | null
   academicYear?: Prisma.NullableEnumAcademicYearFieldUpdateOperationsInput | $Enums.AcademicYear | null
+  term?: Prisma.NullableEnumTermFieldUpdateOperationsInput | $Enums.Term | null
   priceEGP?: Prisma.IntFieldUpdateOperationsInput | number
   isPublished?: Prisma.BoolFieldUpdateOperationsInput | boolean
   instructorId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1207,6 +1244,7 @@ export type CourseCreateWithoutAttachmentsInput = {
   track: $Enums.CourseTrack
   faculty?: $Enums.Faculty | null
   academicYear?: $Enums.AcademicYear | null
+  term?: $Enums.Term | null
   priceEGP: number
   isPublished?: boolean
   createdAt?: Date | string
@@ -1233,6 +1271,7 @@ export type CourseUncheckedCreateWithoutAttachmentsInput = {
   track: $Enums.CourseTrack
   faculty?: $Enums.Faculty | null
   academicYear?: $Enums.AcademicYear | null
+  term?: $Enums.Term | null
   priceEGP: number
   isPublished?: boolean
   instructorId?: string | null
@@ -1275,6 +1314,7 @@ export type CourseUpdateWithoutAttachmentsInput = {
   track?: Prisma.EnumCourseTrackFieldUpdateOperationsInput | $Enums.CourseTrack
   faculty?: Prisma.NullableEnumFacultyFieldUpdateOperationsInput | $Enums.Faculty | null
   academicYear?: Prisma.NullableEnumAcademicYearFieldUpdateOperationsInput | $Enums.AcademicYear | null
+  term?: Prisma.NullableEnumTermFieldUpdateOperationsInput | $Enums.Term | null
   priceEGP?: Prisma.IntFieldUpdateOperationsInput | number
   isPublished?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1301,6 +1341,7 @@ export type CourseUncheckedUpdateWithoutAttachmentsInput = {
   track?: Prisma.EnumCourseTrackFieldUpdateOperationsInput | $Enums.CourseTrack
   faculty?: Prisma.NullableEnumFacultyFieldUpdateOperationsInput | $Enums.Faculty | null
   academicYear?: Prisma.NullableEnumAcademicYearFieldUpdateOperationsInput | $Enums.AcademicYear | null
+  term?: Prisma.NullableEnumTermFieldUpdateOperationsInput | $Enums.Term | null
   priceEGP?: Prisma.IntFieldUpdateOperationsInput | number
   isPublished?: Prisma.BoolFieldUpdateOperationsInput | boolean
   instructorId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1327,6 +1368,7 @@ export type CourseCreateWithoutExamsInput = {
   track: $Enums.CourseTrack
   faculty?: $Enums.Faculty | null
   academicYear?: $Enums.AcademicYear | null
+  term?: $Enums.Term | null
   priceEGP: number
   isPublished?: boolean
   createdAt?: Date | string
@@ -1353,6 +1395,7 @@ export type CourseUncheckedCreateWithoutExamsInput = {
   track: $Enums.CourseTrack
   faculty?: $Enums.Faculty | null
   academicYear?: $Enums.AcademicYear | null
+  term?: $Enums.Term | null
   priceEGP: number
   isPublished?: boolean
   instructorId?: string | null
@@ -1395,6 +1438,7 @@ export type CourseUpdateWithoutExamsInput = {
   track?: Prisma.EnumCourseTrackFieldUpdateOperationsInput | $Enums.CourseTrack
   faculty?: Prisma.NullableEnumFacultyFieldUpdateOperationsInput | $Enums.Faculty | null
   academicYear?: Prisma.NullableEnumAcademicYearFieldUpdateOperationsInput | $Enums.AcademicYear | null
+  term?: Prisma.NullableEnumTermFieldUpdateOperationsInput | $Enums.Term | null
   priceEGP?: Prisma.IntFieldUpdateOperationsInput | number
   isPublished?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1421,6 +1465,7 @@ export type CourseUncheckedUpdateWithoutExamsInput = {
   track?: Prisma.EnumCourseTrackFieldUpdateOperationsInput | $Enums.CourseTrack
   faculty?: Prisma.NullableEnumFacultyFieldUpdateOperationsInput | $Enums.Faculty | null
   academicYear?: Prisma.NullableEnumAcademicYearFieldUpdateOperationsInput | $Enums.AcademicYear | null
+  term?: Prisma.NullableEnumTermFieldUpdateOperationsInput | $Enums.Term | null
   priceEGP?: Prisma.IntFieldUpdateOperationsInput | number
   isPublished?: Prisma.BoolFieldUpdateOperationsInput | boolean
   instructorId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1447,6 +1492,7 @@ export type CourseCreateWithoutEnrollmentsInput = {
   track: $Enums.CourseTrack
   faculty?: $Enums.Faculty | null
   academicYear?: $Enums.AcademicYear | null
+  term?: $Enums.Term | null
   priceEGP: number
   isPublished?: boolean
   createdAt?: Date | string
@@ -1473,6 +1519,7 @@ export type CourseUncheckedCreateWithoutEnrollmentsInput = {
   track: $Enums.CourseTrack
   faculty?: $Enums.Faculty | null
   academicYear?: $Enums.AcademicYear | null
+  term?: $Enums.Term | null
   priceEGP: number
   isPublished?: boolean
   instructorId?: string | null
@@ -1515,6 +1562,7 @@ export type CourseUpdateWithoutEnrollmentsInput = {
   track?: Prisma.EnumCourseTrackFieldUpdateOperationsInput | $Enums.CourseTrack
   faculty?: Prisma.NullableEnumFacultyFieldUpdateOperationsInput | $Enums.Faculty | null
   academicYear?: Prisma.NullableEnumAcademicYearFieldUpdateOperationsInput | $Enums.AcademicYear | null
+  term?: Prisma.NullableEnumTermFieldUpdateOperationsInput | $Enums.Term | null
   priceEGP?: Prisma.IntFieldUpdateOperationsInput | number
   isPublished?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1541,6 +1589,7 @@ export type CourseUncheckedUpdateWithoutEnrollmentsInput = {
   track?: Prisma.EnumCourseTrackFieldUpdateOperationsInput | $Enums.CourseTrack
   faculty?: Prisma.NullableEnumFacultyFieldUpdateOperationsInput | $Enums.Faculty | null
   academicYear?: Prisma.NullableEnumAcademicYearFieldUpdateOperationsInput | $Enums.AcademicYear | null
+  term?: Prisma.NullableEnumTermFieldUpdateOperationsInput | $Enums.Term | null
   priceEGP?: Prisma.IntFieldUpdateOperationsInput | number
   isPublished?: Prisma.BoolFieldUpdateOperationsInput | boolean
   instructorId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1567,6 +1616,7 @@ export type CourseCreateWithoutPaymentsInput = {
   track: $Enums.CourseTrack
   faculty?: $Enums.Faculty | null
   academicYear?: $Enums.AcademicYear | null
+  term?: $Enums.Term | null
   priceEGP: number
   isPublished?: boolean
   createdAt?: Date | string
@@ -1593,6 +1643,7 @@ export type CourseUncheckedCreateWithoutPaymentsInput = {
   track: $Enums.CourseTrack
   faculty?: $Enums.Faculty | null
   academicYear?: $Enums.AcademicYear | null
+  term?: $Enums.Term | null
   priceEGP: number
   isPublished?: boolean
   instructorId?: string | null
@@ -1635,6 +1686,7 @@ export type CourseUpdateWithoutPaymentsInput = {
   track?: Prisma.EnumCourseTrackFieldUpdateOperationsInput | $Enums.CourseTrack
   faculty?: Prisma.NullableEnumFacultyFieldUpdateOperationsInput | $Enums.Faculty | null
   academicYear?: Prisma.NullableEnumAcademicYearFieldUpdateOperationsInput | $Enums.AcademicYear | null
+  term?: Prisma.NullableEnumTermFieldUpdateOperationsInput | $Enums.Term | null
   priceEGP?: Prisma.IntFieldUpdateOperationsInput | number
   isPublished?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1661,6 +1713,7 @@ export type CourseUncheckedUpdateWithoutPaymentsInput = {
   track?: Prisma.EnumCourseTrackFieldUpdateOperationsInput | $Enums.CourseTrack
   faculty?: Prisma.NullableEnumFacultyFieldUpdateOperationsInput | $Enums.Faculty | null
   academicYear?: Prisma.NullableEnumAcademicYearFieldUpdateOperationsInput | $Enums.AcademicYear | null
+  term?: Prisma.NullableEnumTermFieldUpdateOperationsInput | $Enums.Term | null
   priceEGP?: Prisma.IntFieldUpdateOperationsInput | number
   isPublished?: Prisma.BoolFieldUpdateOperationsInput | boolean
   instructorId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1687,6 +1740,7 @@ export type CourseCreateWithoutCertificatesInput = {
   track: $Enums.CourseTrack
   faculty?: $Enums.Faculty | null
   academicYear?: $Enums.AcademicYear | null
+  term?: $Enums.Term | null
   priceEGP: number
   isPublished?: boolean
   createdAt?: Date | string
@@ -1713,6 +1767,7 @@ export type CourseUncheckedCreateWithoutCertificatesInput = {
   track: $Enums.CourseTrack
   faculty?: $Enums.Faculty | null
   academicYear?: $Enums.AcademicYear | null
+  term?: $Enums.Term | null
   priceEGP: number
   isPublished?: boolean
   instructorId?: string | null
@@ -1755,6 +1810,7 @@ export type CourseUpdateWithoutCertificatesInput = {
   track?: Prisma.EnumCourseTrackFieldUpdateOperationsInput | $Enums.CourseTrack
   faculty?: Prisma.NullableEnumFacultyFieldUpdateOperationsInput | $Enums.Faculty | null
   academicYear?: Prisma.NullableEnumAcademicYearFieldUpdateOperationsInput | $Enums.AcademicYear | null
+  term?: Prisma.NullableEnumTermFieldUpdateOperationsInput | $Enums.Term | null
   priceEGP?: Prisma.IntFieldUpdateOperationsInput | number
   isPublished?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1781,6 +1837,7 @@ export type CourseUncheckedUpdateWithoutCertificatesInput = {
   track?: Prisma.EnumCourseTrackFieldUpdateOperationsInput | $Enums.CourseTrack
   faculty?: Prisma.NullableEnumFacultyFieldUpdateOperationsInput | $Enums.Faculty | null
   academicYear?: Prisma.NullableEnumAcademicYearFieldUpdateOperationsInput | $Enums.AcademicYear | null
+  term?: Prisma.NullableEnumTermFieldUpdateOperationsInput | $Enums.Term | null
   priceEGP?: Prisma.IntFieldUpdateOperationsInput | number
   isPublished?: Prisma.BoolFieldUpdateOperationsInput | boolean
   instructorId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1807,6 +1864,7 @@ export type CourseCreateManyInstructorInput = {
   track: $Enums.CourseTrack
   faculty?: $Enums.Faculty | null
   academicYear?: $Enums.AcademicYear | null
+  term?: $Enums.Term | null
   priceEGP: number
   isPublished?: boolean
   createdAt?: Date | string
@@ -1826,6 +1884,7 @@ export type CourseUpdateWithoutInstructorInput = {
   track?: Prisma.EnumCourseTrackFieldUpdateOperationsInput | $Enums.CourseTrack
   faculty?: Prisma.NullableEnumFacultyFieldUpdateOperationsInput | $Enums.Faculty | null
   academicYear?: Prisma.NullableEnumAcademicYearFieldUpdateOperationsInput | $Enums.AcademicYear | null
+  term?: Prisma.NullableEnumTermFieldUpdateOperationsInput | $Enums.Term | null
   priceEGP?: Prisma.IntFieldUpdateOperationsInput | number
   isPublished?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1852,6 +1911,7 @@ export type CourseUncheckedUpdateWithoutInstructorInput = {
   track?: Prisma.EnumCourseTrackFieldUpdateOperationsInput | $Enums.CourseTrack
   faculty?: Prisma.NullableEnumFacultyFieldUpdateOperationsInput | $Enums.Faculty | null
   academicYear?: Prisma.NullableEnumAcademicYearFieldUpdateOperationsInput | $Enums.AcademicYear | null
+  term?: Prisma.NullableEnumTermFieldUpdateOperationsInput | $Enums.Term | null
   priceEGP?: Prisma.IntFieldUpdateOperationsInput | number
   isPublished?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1878,6 +1938,7 @@ export type CourseUncheckedUpdateManyWithoutInstructorInput = {
   track?: Prisma.EnumCourseTrackFieldUpdateOperationsInput | $Enums.CourseTrack
   faculty?: Prisma.NullableEnumFacultyFieldUpdateOperationsInput | $Enums.Faculty | null
   academicYear?: Prisma.NullableEnumAcademicYearFieldUpdateOperationsInput | $Enums.AcademicYear | null
+  term?: Prisma.NullableEnumTermFieldUpdateOperationsInput | $Enums.Term | null
   priceEGP?: Prisma.IntFieldUpdateOperationsInput | number
   isPublished?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1982,6 +2043,7 @@ export type CourseSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   track?: boolean
   faculty?: boolean
   academicYear?: boolean
+  term?: boolean
   priceEGP?: boolean
   isPublished?: boolean
   instructorId?: boolean
@@ -2011,6 +2073,7 @@ export type CourseSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extens
   track?: boolean
   faculty?: boolean
   academicYear?: boolean
+  term?: boolean
   priceEGP?: boolean
   isPublished?: boolean
   instructorId?: boolean
@@ -2032,6 +2095,7 @@ export type CourseSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extens
   track?: boolean
   faculty?: boolean
   academicYear?: boolean
+  term?: boolean
   priceEGP?: boolean
   isPublished?: boolean
   instructorId?: boolean
@@ -2053,6 +2117,7 @@ export type CourseSelectScalar = {
   track?: boolean
   faculty?: boolean
   academicYear?: boolean
+  term?: boolean
   priceEGP?: boolean
   isPublished?: boolean
   instructorId?: boolean
@@ -2060,7 +2125,7 @@ export type CourseSelectScalar = {
   updatedAt?: boolean
 }
 
-export type CourseOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "title" | "slug" | "description" | "coverImageKey" | "detailedDescription" | "whatYouWillLearn" | "requirements" | "targetAudience" | "track" | "faculty" | "academicYear" | "priceEGP" | "isPublished" | "instructorId" | "createdAt" | "updatedAt", ExtArgs["result"]["course"]>
+export type CourseOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "title" | "slug" | "description" | "coverImageKey" | "detailedDescription" | "whatYouWillLearn" | "requirements" | "targetAudience" | "track" | "faculty" | "academicYear" | "term" | "priceEGP" | "isPublished" | "instructorId" | "createdAt" | "updatedAt", ExtArgs["result"]["course"]>
 export type CourseInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   instructor?: boolean | Prisma.Course$instructorArgs<ExtArgs>
   sections?: boolean | Prisma.Course$sectionsArgs<ExtArgs>
@@ -2104,6 +2169,7 @@ export type $CoursePayload<ExtArgs extends runtime.Types.Extensions.InternalArgs
     track: $Enums.CourseTrack
     faculty: $Enums.Faculty | null
     academicYear: $Enums.AcademicYear | null
+    term: $Enums.Term | null
     priceEGP: number
     isPublished: boolean
     instructorId: string | null
@@ -2552,6 +2618,7 @@ export interface CourseFieldRefs {
   readonly track: Prisma.FieldRef<"Course", 'CourseTrack'>
   readonly faculty: Prisma.FieldRef<"Course", 'Faculty'>
   readonly academicYear: Prisma.FieldRef<"Course", 'AcademicYear'>
+  readonly term: Prisma.FieldRef<"Course", 'Term'>
   readonly priceEGP: Prisma.FieldRef<"Course", 'Int'>
   readonly isPublished: Prisma.FieldRef<"Course", 'Boolean'>
   readonly instructorId: Prisma.FieldRef<"Course", 'String'>

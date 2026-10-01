@@ -8,8 +8,11 @@ import {
   ACADEMIC_YEARS,
   FACULTY_LABELS,
   ACADEMIC_YEAR_LABELS,
+  TERMS,
+  TERM_LABELS,
   type Faculty,
   type AcademicYear,
+  type Term,
 } from "../lib/academicTaxonomy";
 
 type Section = "faculties" | "postgraduate";
@@ -20,6 +23,10 @@ function isFaculty(v: string | null): v is Faculty {
 
 function isAcademicYear(v: string | null): v is AcademicYear {
   return !!v && (ACADEMIC_YEARS as string[]).includes(v);
+}
+
+function isTerm(v: string | null): v is Term {
+  return !!v && (TERMS as string[]).includes(v);
 }
 
 /**
@@ -46,8 +53,10 @@ export default function Courses() {
   const section: Section = params.get("section") === "postgraduate" ? "postgraduate" : "faculties";
   const facultyParam = params.get("faculty");
   const yearParam = params.get("year");
+  const termParam = params.get("term");
   const faculty = isFaculty(facultyParam) ? facultyParam : null;
   const academicYear = isAcademicYear(yearParam) ? yearParam : null;
+  const term = isTerm(termParam) ? termParam : null;
 
   function selectSection(next: Section) {
     setParams(next === "faculties" ? {} : { section: next });
@@ -59,8 +68,16 @@ export default function Courses() {
     if (!faculty) return;
     setParams({ faculty, year: y });
   }
+  function selectTerm(t: Term) {
+    if (!faculty || !academicYear) return;
+    setParams({ faculty, year: academicYear, term: t });
+  }
   function resetFaculty() {
     setParams({});
+  }
+  function resetYear() {
+    if (!faculty) return;
+    setParams({ faculty });
   }
 
   return (
@@ -132,12 +149,25 @@ export default function Courses() {
           </section>
 
           {section === "postgraduate" ? (
-            <section className="px-6 py-24 text-center">
-              <Building2 className="mx-auto h-10 w-10 text-(--color-gold)/60" />
-              <h2 className="mt-4 text-xl font-bold text-(--color-navy)">قسم الدراسات العليا قريبًا</h2>
-              <p className="mx-auto mt-3 max-w-md leading-7 text-(--color-muted)">
-                بنجهّز تصنيف برامج الدراسات العليا دلوقتي، وهيظهر هنا أول ما يخلص.
-              </p>
+            <section className="px-6 py-20">
+              <div className="mx-auto max-w-2xl text-center">
+                <Building2 className="mx-auto h-10 w-10 text-(--color-gold)/60" />
+                <h2 className="mt-4 text-xl font-bold text-(--color-navy)">قسم الدراسات العليا</h2>
+                <p className="mx-auto mt-4 max-w-xl leading-8 text-(--color-muted)">
+                  مسار مخصص لخريجي كليات الحقوق والمحامين الممارسين اللي بيكملوا دراستهم
+                  العليا (دبلومات، ماجستير، ودكتوراه) أو بيحضّروا لامتحانات القبول والمعادلة.
+                  هنقدّم فيه محتوى أعمق وأكتر تخصصًا من كورسات المرحلة الجامعية — مذاكرة
+                  مركّزة على المناهج الفعلية، تحليل أحكام ومراجع قانونية متقدمة، ومتابعة
+                  أقرب لطبيعة البحث العلمي والمناقشات القانونية في مرحلة الدراسات العليا.
+                </p>
+                <p className="mx-auto mt-4 max-w-xl leading-7 text-(--color-muted)">
+                  التقسيم الداخلي للبرامج (حسب الجامعة أو التخصص أو المرحلة) لسه بيتحدد
+                  بالتنسيق مع فريقنا الأكاديمي، وهنعلن عنه هنا أول ما يجهز.
+                </p>
+                <span className="mt-6 inline-block rounded-full bg-(--color-gold)/15 px-4 py-1.5 text-xs font-bold text-(--color-gold-dim)">
+                  قريبًا
+                </span>
+              </div>
             </section>
           ) : (
             <section className="px-6 py-14">
@@ -162,7 +192,7 @@ export default function Courses() {
 
                 {/* خطوة 2: اختيار الفرقة (تظهر بس بعد اختيار الكلية) */}
                 {faculty && (
-                  <div className="mb-8 flex flex-wrap items-center gap-2 text-sm">
+                  <div className="mb-6 flex flex-wrap items-center gap-2 text-sm">
                     <span className="font-bold text-(--color-navy)">الفرقة:</span>
                     {ACADEMIC_YEARS.map((y) => (
                       <button
@@ -186,6 +216,32 @@ export default function Courses() {
                   </div>
                 )}
 
+                {/* خطوة 3: اختيار الترم (تظهر بس بعد اختيار الفرقة) */}
+                {faculty && academicYear && (
+                  <div className="mb-8 flex flex-wrap items-center gap-2 text-sm">
+                    <span className="font-bold text-(--color-navy)">الترم:</span>
+                    {TERMS.map((t) => (
+                      <button
+                        key={t}
+                        onClick={() => selectTerm(t)}
+                        className={`rounded-full border px-4 py-2 text-sm font-bold transition ${
+                          term === t
+                            ? "border-(--color-gold) bg-(--color-gold)/10 text-(--color-gold-dim)"
+                            : "border-(--color-silver) text-(--color-navy) hover:border-(--color-gold)/50"
+                        }`}
+                      >
+                        {TERM_LABELS[t]}
+                      </button>
+                    ))}
+                    <button
+                      onClick={resetYear}
+                      className="text-xs text-(--color-muted) underline hover:text-(--color-navy)"
+                    >
+                      غيّر الفرقة
+                    </button>
+                  </div>
+                )}
+
                 {!faculty && (
                   <div className="rounded-xl border border-dashed border-(--color-silver) px-6 py-16 text-center">
                     <GraduationCap className="mx-auto h-8 w-8 text-(--color-gold)/50" />
@@ -200,8 +256,20 @@ export default function Courses() {
                   </div>
                 )}
 
-                {faculty && academicYear && (
-                  <CourseCatalogGrid track="STUDENT_COURSE" faculty={faculty} academicYear={academicYear} />
+                {faculty && academicYear && !term && (
+                  <div className="rounded-xl border border-dashed border-(--color-silver) px-6 py-16 text-center">
+                    <CheckCircle2 className="mx-auto h-8 w-8 text-(--color-gold)/50" />
+                    <p className="mt-3 text-sm text-(--color-muted)">اختار الترم فوق عشان تشوف الكورسات المتاحة</p>
+                  </div>
+                )}
+
+                {faculty && academicYear && term && (
+                  <CourseCatalogGrid
+                    track="STUDENT_COURSE"
+                    faculty={faculty}
+                    academicYear={academicYear}
+                    term={term}
+                  />
                 )}
               </div>
             </section>

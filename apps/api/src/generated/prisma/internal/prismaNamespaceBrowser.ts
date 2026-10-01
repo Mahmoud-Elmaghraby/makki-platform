@@ -138,6 +138,7 @@ export const CourseScalarFieldEnum = {
   track: 'track',
   faculty: 'faculty',
   academicYear: 'academicYear',
+  term: 'term',
   priceEGP: 'priceEGP',
   isPublished: 'isPublished',
   instructorId: 'instructorId',

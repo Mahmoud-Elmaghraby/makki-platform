@@ -23,3 +23,13 @@ export const ACADEMIC_YEAR_LABELS: Record<AcademicYear, string> = {
   YEAR_3: "الفرقة الثالثة",
   YEAR_4: "الفرقة الرابعة",
 };
+
+// تقسيم الكورس حسب الترم الدراسي — فلتر إضافي جنب الكلية والفرقة.
+export type Term = "FIRST_TERM" | "SECOND_TERM";
+
+export const TERMS: Term[] = ["FIRST_TERM", "SECOND_TERM"];
+
+export const TERM_LABELS: Record<Term, string> = {
+  FIRST_TERM: "الترم الأول",
+  SECOND_TERM: "الترم الثاني",
+};

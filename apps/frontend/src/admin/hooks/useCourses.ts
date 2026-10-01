@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiClient } from "../lib/apiClient";
 import { uploadFileToApi } from "../lib/uploadFileToApi";
-import type { Course, CourseDetail, CourseTrack, Faculty, AcademicYear } from "../types/api";
+import type { Course, CourseDetail, CourseTrack, Faculty, AcademicYear, Term } from "../types/api";
 
 export interface CourseInput {
   title: string;
@@ -14,6 +14,7 @@ export interface CourseInput {
   track: CourseTrack;
   faculty?: Faculty;
   academicYear?: AcademicYear;
+  term?: Term;
   priceEGP: number;
   instructorId?: string;
   isPublished?: boolean;

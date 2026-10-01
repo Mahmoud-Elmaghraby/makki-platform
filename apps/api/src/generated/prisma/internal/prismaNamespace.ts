@@ -1930,6 +1930,7 @@ export const CourseScalarFieldEnum = {
   track: 'track',
   faculty: 'faculty',
   academicYear: 'academicYear',
+  term: 'term',
   priceEGP: 'priceEGP',
   isPublished: 'isPublished',
   instructorId: 'instructorId',
@@ -2291,6 +2292,20 @@ export type EnumAcademicYearFieldRefInput<$PrismaModel> = FieldRefInputType<$Pri
  * Reference to a field of type 'AcademicYear[]'
  */
 export type ListEnumAcademicYearFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'AcademicYear[]'>
+    
+
+
+/**
+ * Reference to a field of type 'Term'
+ */
+export type EnumTermFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Term'>
+    
+
+
+/**
+ * Reference to a field of type 'Term[]'
+ */
+export type ListEnumTermFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Term[]'>
     
 
 

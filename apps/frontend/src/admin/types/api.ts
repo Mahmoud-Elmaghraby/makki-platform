@@ -1,7 +1,7 @@
 // أنواع TypeScript مرآة لموديلات الـ Prisma وDTOs بتاعة الـ API — بنعرّفها
 // كـ union types (مش enum) عشان tsconfig.app.json شغّال بـ erasableSyntaxOnly.
-import type { Faculty, AcademicYear } from "../../lib/academicTaxonomy";
-export type { Faculty, AcademicYear };
+import type { Faculty, AcademicYear, Term } from "../../lib/academicTaxonomy";
+export type { Faculty, AcademicYear, Term };
 
 export type Role = "ADMIN" | "MANAGER" | "INSTRUCTOR";
 export type CourseTrack = "STUDENT_COURSE" | "LAWYER_TRAINING";
@@ -39,6 +39,7 @@ export interface Course {
   track: CourseTrack;
   faculty: Faculty | null;
   academicYear: AcademicYear | null;
+  term: Term | null;
   priceEGP: number;
   isPublished: boolean;
   instructorId: string | null;

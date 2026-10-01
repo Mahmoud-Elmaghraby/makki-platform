@@ -161,6 +161,13 @@ export type EnumAcademicYearNullableFilter<$PrismaModel = never> = {
   not?: Prisma.NestedEnumAcademicYearNullableFilter<$PrismaModel> | $Enums.AcademicYear | null
 }
 
+export type EnumTermNullableFilter<$PrismaModel = never> = {
+  equals?: $Enums.Term | Prisma.EnumTermFieldRefInput<$PrismaModel> | null
+  in?: $Enums.Term[] | Prisma.ListEnumTermFieldRefInput<$PrismaModel> | null
+  notIn?: $Enums.Term[] | Prisma.ListEnumTermFieldRefInput<$PrismaModel> | null
+  not?: Prisma.NestedEnumTermNullableFilter<$PrismaModel> | $Enums.Term | null
+}
+
 export type IntFilter<$PrismaModel = never> = {
   equals?: number | Prisma.IntFieldRefInput<$PrismaModel>
   in?: number[] | Prisma.ListIntFieldRefInput<$PrismaModel>
@@ -200,6 +207,16 @@ export type EnumAcademicYearNullableWithAggregatesFilter<$PrismaModel = never> =
   _count?: Prisma.NestedIntNullableFilter<$PrismaModel>
   _min?: Prisma.NestedEnumAcademicYearNullableFilter<$PrismaModel>
   _max?: Prisma.NestedEnumAcademicYearNullableFilter<$PrismaModel>
+}
+
+export type EnumTermNullableWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.Term | Prisma.EnumTermFieldRefInput<$PrismaModel> | null
+  in?: $Enums.Term[] | Prisma.ListEnumTermFieldRefInput<$PrismaModel> | null
+  notIn?: $Enums.Term[] | Prisma.ListEnumTermFieldRefInput<$PrismaModel> | null
+  not?: Prisma.NestedEnumTermNullableWithAggregatesFilter<$PrismaModel> | $Enums.Term | null
+  _count?: Prisma.NestedIntNullableFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumTermNullableFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumTermNullableFilter<$PrismaModel>
 }
 
 export type IntWithAggregatesFilter<$PrismaModel = never> = {
@@ -664,6 +681,13 @@ export type NestedEnumAcademicYearNullableFilter<$PrismaModel = never> = {
   not?: Prisma.NestedEnumAcademicYearNullableFilter<$PrismaModel> | $Enums.AcademicYear | null
 }
 
+export type NestedEnumTermNullableFilter<$PrismaModel = never> = {
+  equals?: $Enums.Term | Prisma.EnumTermFieldRefInput<$PrismaModel> | null
+  in?: $Enums.Term[] | Prisma.ListEnumTermFieldRefInput<$PrismaModel> | null
+  notIn?: $Enums.Term[] | Prisma.ListEnumTermFieldRefInput<$PrismaModel> | null
+  not?: Prisma.NestedEnumTermNullableFilter<$PrismaModel> | $Enums.Term | null
+}
+
 export type NestedEnumCourseTrackWithAggregatesFilter<$PrismaModel = never> = {
   equals?: $Enums.CourseTrack | Prisma.EnumCourseTrackFieldRefInput<$PrismaModel>
   in?: $Enums.CourseTrack[] | Prisma.ListEnumCourseTrackFieldRefInput<$PrismaModel>
@@ -692,6 +716,16 @@ export type NestedEnumAcademicYearNullableWithAggregatesFilter<$PrismaModel = ne
   _count?: Prisma.NestedIntNullableFilter<$PrismaModel>
   _min?: Prisma.NestedEnumAcademicYearNullableFilter<$PrismaModel>
   _max?: Prisma.NestedEnumAcademicYearNullableFilter<$PrismaModel>
+}
+
+export type NestedEnumTermNullableWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.Term | Prisma.EnumTermFieldRefInput<$PrismaModel> | null
+  in?: $Enums.Term[] | Prisma.ListEnumTermFieldRefInput<$PrismaModel> | null
+  notIn?: $Enums.Term[] | Prisma.ListEnumTermFieldRefInput<$PrismaModel> | null
+  not?: Prisma.NestedEnumTermNullableWithAggregatesFilter<$PrismaModel> | $Enums.Term | null
+  _count?: Prisma.NestedIntNullableFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumTermNullableFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumTermNullableFilter<$PrismaModel>
 }
 
 export type NestedIntWithAggregatesFilter<$PrismaModel = never> = {

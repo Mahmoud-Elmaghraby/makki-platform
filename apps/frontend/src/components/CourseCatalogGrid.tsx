@@ -4,7 +4,7 @@ import { usePublicCourses, type PublicCourseSummary } from "../hooks/usePublicCo
 import { LoadingState, ErrorBanner, EmptyState } from "../admin/components/ui";
 import { extractErrorMessage } from "../student/lib/apiClient";
 import type { CourseTrack } from "../student/types/api";
-import type { Faculty, AcademicYear } from "../lib/academicTaxonomy";
+import type { Faculty, AcademicYear, Term } from "../lib/academicTaxonomy";
 
 function formatPrice(priceEGP: number) {
   return `${priceEGP.toLocaleString("ar-EG")} جنيه`;
@@ -56,14 +56,21 @@ export function CourseCatalogGrid({
   track,
   faculty,
   academicYear,
+  term,
   q,
 }: {
   track: CourseTrack;
   faculty?: Faculty;
   academicYear?: AcademicYear;
+  term?: Term;
   q?: string;
 }) {
-  const { data, isLoading, isError, error } = usePublicCourses(track, { faculty, academicYear, q });
+  const { data, isLoading, isError, error } = usePublicCourses(track, {
+    faculty,
+    academicYear,
+    term,
+    q,
+  });
 
   if (isLoading) return <LoadingState label="بيتم تحميل البرامج..." />;
   if (isError) return <ErrorBanner message={extractErrorMessage(error)} />;

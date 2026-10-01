@@ -9,7 +9,7 @@ import {
   IsEnum,
   Matches,
 } from 'class-validator';
-import { CourseTrack, Faculty, AcademicYear } from '../../generated/prisma/enums';
+import { CourseTrack, Faculty, AcademicYear, Term } from '../../generated/prisma/enums';
 
 export class CreateCourseDto {
   @IsString()
@@ -60,6 +60,10 @@ export class CreateCourseDto {
   @IsOptional()
   @IsEnum(AcademicYear)
   academicYear?: AcademicYear;
+
+  @IsOptional()
+  @IsEnum(Term)
+  term?: Term;
 
   @IsInt()
   @Min(0)
@@ -124,6 +128,10 @@ export class UpdateCourseDto {
   @IsOptional()
   @IsEnum(AcademicYear)
   academicYear?: AcademicYear;
+
+  @IsOptional()
+  @IsEnum(Term)
+  term?: Term;
 
   @IsOptional()
   @IsInt()

@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { apiClient } from "../student/lib/apiClient";
 import type { CourseTrack } from "../student/types/api";
-import type { Faculty, AcademicYear } from "../lib/academicTaxonomy";
+import type { Faculty, AcademicYear, Term } from "../lib/academicTaxonomy";
 
 // كتالوج الكورسات/الدورات العام — GET /courses?track=... (بدون تسجيل دخول،
 // راجع course.controller.ts / course.service.ts::findPublished في الباك إند).
@@ -17,6 +17,7 @@ export interface PublicCourseSummary {
   track: CourseTrack;
   faculty: Faculty | null;
   academicYear: AcademicYear | null;
+  term: Term | null;
   priceEGP: number;
   instructor: { id: string; name: string; photoUrl: string | null } | null;
   _count: { lessons: number };
@@ -24,14 +25,28 @@ export interface PublicCourseSummary {
 
 export function usePublicCourses(
   track: CourseTrack,
-  filters?: { faculty?: Faculty; academicYear?: AcademicYear; q?: string },
+  filters?: { faculty?: Faculty; academicYear?: AcademicYear; term?: Term; q?: string },
 ) {
   const q = filters?.q?.trim() || undefined;
   return useQuery({
-    queryKey: ["public", "courses", track, filters?.faculty, filters?.academicYear, q],
+    queryKey: [
+      "public",
+      "courses",
+      track,
+      filters?.faculty,
+      filters?.academicYear,
+      filters?.term,
+      q,
+    ],
     queryFn: async () => {
       const { data } = await apiClient.get<PublicCourseSummary[]>("/courses", {
-        params: { track, faculty: filters?.faculty, academicYear: filters?.academicYear, q },
+        params: {
+          track,
+          faculty: filters?.faculty,
+          academicYear: filters?.academicYear,
+          term: filters?.term,
+          q,
+        },
       });
       return data;
     },

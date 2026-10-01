@@ -49,6 +49,7 @@ export class CourseService {
         track: dto.track,
         faculty: dto.faculty,
         academicYear: dto.academicYear,
+        term: dto.term,
         priceEGP: dto.priceEGP,
         instructorId,
         isPublished: dto.isPublished ?? false,
@@ -78,7 +79,13 @@ export class CourseService {
     return { ...updated, coverImageUrl: buildCoverImageUrl(updated) };
   }
 
-  async findPublished(track?: string, faculty?: string, academicYear?: string, q?: string) {
+  async findPublished(
+    track?: string,
+    faculty?: string,
+    academicYear?: string,
+    term?: string,
+    q?: string,
+  ) {
     const query = q?.trim();
     const courses = await this.prisma.course.findMany({
       where: {
@@ -86,6 +93,7 @@ export class CourseService {
         ...(track ? { track: track as never } : {}),
         ...(faculty ? { faculty: faculty as never } : {}),
         ...(academicYear ? { academicYear: academicYear as never } : {}),
+        ...(term ? { term: term as never } : {}),
         // بحث بسيط بالعنوان/الوصف (مش حساس لحالة الأحرف) — كافي لحجم
         // الكتالوج الحالي من غير الحاجة لمحرك بحث خارجي.
         ...(query
