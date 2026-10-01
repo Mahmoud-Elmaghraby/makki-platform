@@ -10,6 +10,7 @@ import CourseDetail from "./pages/CourseDetail";
 import Contact from "./pages/Contact";
 import Privacy from "./pages/Privacy";
 import Terms from "./pages/Terms";
+import ScrollToTop from "./components/ScrollToTop";
 
 import { queryClient } from "./admin/lib/queryClient";
 import { AdminAuthProvider } from "./admin/auth/AdminAuthContext";
@@ -53,6 +54,7 @@ export default function App() {
       <AdminAuthProvider>
         <StudentAuthProvider>
           <ToastProvider>
+          <ScrollToTop />
           <Routes>
             <Route element={<MainLayout />}>
               <Route path="/" element={<Home />} />
