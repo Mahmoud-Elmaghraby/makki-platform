@@ -16,6 +16,7 @@ export function VideoPlayer({
   onProgress,
   checkpoints = [],
   onAnswerCheckpoint,
+  watermarkText,
 }: {
   manifestUrl: string;
   onProgress: (positionSeconds: number) => void;
@@ -26,6 +27,12 @@ export function VideoPlayer({
     checkpointId: string,
     answer: { selectedOptionId?: string; booleanAnswer?: boolean },
   ) => Promise<CheckpointAnswerResult>;
+  /** نص علامة مائية خفيفة بتتحرك فوق الفيديو (مثلًا اسم/رقم الطالب) — إجراء
+   *  ردع ضد تسجيل الشاشة ومشاركة الفيديو: لو حد صوّر الشاشة، الفيديو
+   *  المسرّب بيفضل فيه إشارة واضحة لصاحب الحساب اللي سرّبه. مش بيمنع
+   *  التسجيل نفسه (ده مستحيل تقنيًا من غير DRM)، بس بيخلي السرقة قابلة
+   *  للتتبّع فيبقى مخاطرة للطالب نفسه. */
+  watermarkText?: string;
 }) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const onProgressRef = useRef(onProgress);
@@ -53,6 +60,25 @@ export function VideoPlayer({
   // السؤال يظهر تاني كل شوية حتى بعد ما الطالب يجاوب عليه.
   const onAnswerCheckpointRef = useRef(onAnswerCheckpoint);
   onAnswerCheckpointRef.current = onAnswerCheckpoint;
+
+  // موضع العلامة المائية بيتغيّر كل 12 ثانية على نقاط ثابتة (مش عشوائية كل
+  // رندر) عشان القص الجزئي من زاوية واحدة ميمسحش العلامة خالص.
+  const WATERMARK_POSITIONS = [
+    "top-3 right-3",
+    "top-3 left-3",
+    "bottom-14 right-3",
+    "bottom-14 left-3",
+  ] as const;
+  const [watermarkPosIndex, setWatermarkPosIndex] = useState(0);
+
+  useEffect(() => {
+    if (!watermarkText) return;
+    const interval = window.setInterval(() => {
+      setWatermarkPosIndex((i) => (i + 1) % WATERMARK_POSITIONS.length);
+    }, 12_000);
+    return () => window.clearInterval(interval);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [watermarkText]);
 
   useEffect(() => {
     const video = videoRef.current;
@@ -183,8 +209,24 @@ export function VideoPlayer({
     : false;
 
   return (
-    <div className="relative">
-      <video ref={videoRef} controls className="aspect-video w-full rounded-xl bg-black" />
+    <div className="relative" onContextMenu={(e) => e.preventDefault()}>
+      <video
+        ref={videoRef}
+        controls
+        controlsList="nodownload noremoteplayback"
+        disablePictureInPicture
+        disableRemotePlayback
+        className="aspect-video w-full select-none rounded-xl bg-black"
+      />
+
+      {watermarkText && (
+        <div
+          className={`pointer-events-none absolute ${WATERMARK_POSITIONS[watermarkPosIndex]} rounded bg-black/30 px-2 py-1 text-[11px] font-medium text-white/70 backdrop-blur-[1px] transition-all duration-1000`}
+          dir="ltr"
+        >
+          {watermarkText}
+        </div>
+      )}
 
       {activeCheckpoint && (
         <div className="absolute inset-0 flex items-center justify-center rounded-xl bg-(--color-navy)/90 p-4 backdrop-blur-sm">

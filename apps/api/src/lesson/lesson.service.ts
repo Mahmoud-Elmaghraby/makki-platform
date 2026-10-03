@@ -11,7 +11,7 @@ import { TranscodeQueueService } from '../transcode/transcode-queue.service';
 import { CourseOwnershipService, Actor } from '../course/course-ownership.service';
 import {
   HlsTokenService,
-  PLAYBACK_SESSION_TTL_SECONDS,
+  computeSessionTtlSeconds,
 } from './hls-token.service';
 import {
   rewriteMasterManifest,
@@ -161,12 +161,13 @@ export class LessonService {
       throw new NotFoundException('الفيديو لسه مش جاهز');
     }
 
-    const token = await this.hlsTokenService.sign(lesson.id);
+    const ttlSeconds = computeSessionTtlSeconds(lesson.durationSeconds);
+    const token = await this.hlsTokenService.sign(lesson.id, ttlSeconds);
     const apiBase = process.env.API_PUBLIC_URL;
 
     return {
       manifestUrl: `${apiBase}/lessons/${lesson.id}/hls/master.m3u8?token=${token}`,
-      expiresAt: new Date(Date.now() + PLAYBACK_SESSION_TTL_SECONDS * 1000),
+      expiresAt: new Date(Date.now() + ttlSeconds * 1000),
     };
   }
 
@@ -188,7 +189,8 @@ export class LessonService {
       throw new NotFoundException('الجودة دي مش موجودة');
     }
 
-    await this.ensureVideoReady(lessonId);
+    const lesson = await this.ensureVideoReady(lessonId);
+    const ttlSeconds = computeSessionTtlSeconds(lesson.durationSeconds);
     const text = await this.b2.getObjectText(
       `lessons/${lessonId}/hls/${variant}/index.m3u8`,
     );
@@ -196,7 +198,7 @@ export class LessonService {
     return rewriteVariantManifest(text, (segmentLine) =>
       this.b2.getPresignedGetUrl(
         `lessons/${lessonId}/hls/${variant}/${segmentLine}`,
-        PLAYBACK_SESSION_TTL_SECONDS,
+        ttlSeconds,
       ),
     );
   }

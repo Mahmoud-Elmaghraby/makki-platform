@@ -22,7 +22,7 @@ export function CourseViewPage() {
   const updateProgress = useUpdateLessonProgress(slug);
   const downloadAttachment = useAttachmentDownloadUrl();
   const startCheckout = useStartCheckout();
-  const { isAuthenticated } = useStudentAuth();
+  const { isAuthenticated, student } = useStudentAuth();
 
   const [selectedLessonId, setSelectedLessonId] = useState<string | null>(null);
 
@@ -114,6 +114,11 @@ export function CourseViewPage() {
                 <VideoPlayer
                   key={activeLesson.id}
                   manifestUrl={playbackToken.data.manifestUrl}
+                  watermarkText={
+                    student
+                      ? `${student.name}${student.phone ? " · " + student.phone.slice(-4) : ""}`
+                      : undefined
+                  }
                   onProgress={(positionSeconds) =>
                     updateProgress.mutate({ lessonId: activeLesson.id, positionSeconds })
                   }
