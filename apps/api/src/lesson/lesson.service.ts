@@ -1,5 +1,6 @@
 import {
   Injectable,
+  Logger,
   NotFoundException,
   UnauthorizedException,
   ForbiddenException,
@@ -29,6 +30,8 @@ const VARIANT_NAME_PATTERN = /^[a-zA-Z0-9]+$/;
 
 @Injectable()
 export class LessonService {
+  private readonly logger = new Logger(LessonService.name);
+
   constructor(
     private readonly prisma: PrismaService,
     private readonly b2: B2StorageService,
@@ -76,19 +79,36 @@ export class LessonService {
     await this.ensureLessonInCourse(courseId, lessonId);
 
     const storageKey = `lessons/${lessonId}/source`;
-    try {
-      await this.b2.uploadFile(storageKey, file.path, file.mimetype);
-    } finally {
-      await fs.promises.unlink(file.path).catch(() => {});
-    }
 
+    // نعلّم الدرس "بيتجهّز" فورًا ونرد على المتصفح من غير ما نستنى رفع الملف
+    // لـ B2 (ممكن ياخد دقايق طويلة لفيديو كبير فكان nginx بيقطع بـ 504 والرفع
+    // بيبان فاشل رغم إنه بيكمّل). الرفع لـ B2 والتحويل بيكملوا في الخلفية،
+    // وأي فشل بيتسجّل في videoFailed والواجهة بتتابعه بالـ polling.
     await this.prisma.lesson.update({
       where: { id: lessonId },
       data: { storageKey, videoReady: false, videoFailed: false },
     });
 
-    await this.transcodeQueue.enqueue({ lessonId, sourceKey: storageKey });
+    void this.uploadSourceAndEnqueue(lessonId, storageKey, file);
     return { queued: true };
+  }
+
+  private async uploadSourceAndEnqueue(
+    lessonId: string,
+    storageKey: string,
+    file: Express.Multer.File,
+  ) {
+    try {
+      await this.b2.uploadFile(storageKey, file.path, file.mimetype);
+      await this.transcodeQueue.enqueue({ lessonId, sourceKey: storageKey });
+    } catch (err) {
+      this.logger.error(`[${lessonId}] source upload to B2 failed`, err as Error);
+      await this.prisma.lesson
+        .update({ where: { id: lessonId }, data: { videoFailed: true } })
+        .catch(() => {});
+    } finally {
+      await fs.promises.unlink(file.path).catch(() => {});
+    }
   }
 
   async findAllForCourseAdmin(courseId: string, actor: Actor) {
