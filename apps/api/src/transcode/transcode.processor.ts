@@ -61,6 +61,13 @@ export class TranscodeProcessor {
         },
       });
 
+      // حذف الملف الأصلي بعد نجاح التحويل لتوفير مساحة التخزين المجانية
+      try {
+        await this.storage.deleteByPrefix(sourceKey);
+      } catch (e) {
+        this.logger.warn(`[${lessonId}] failed to delete source: ${(e as Error).message}`);
+      }
+
       this.logger.log(`[${lessonId}] done`);
     } catch (err) {
       this.logger.error(`[${lessonId}] transcode failed`, err as Error);
