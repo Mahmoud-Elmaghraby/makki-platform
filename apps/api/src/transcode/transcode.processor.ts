@@ -6,8 +6,12 @@ import * as path from 'path';
 import { PrismaService } from '../prisma/prisma.service';
 import { B2StorageService } from '../storage/b2-storage.service';
 import {
+  lessonMediaDir,
+  mediaRoot,
+} from '../lesson/media-storage.util';
+import {
   probeSource,
-  pickRenditions,
+  pickSingleRendition,
   transcodeRendition,
   writeMasterPlaylist,
 } from './ffmpeg-hls.util';
@@ -15,6 +19,8 @@ import {
 export interface TranscodeJobData {
   lessonId: string;
   sourceKey: string;
+  /** الملف الأصلي متخزّن على قرص السيرفر (مش B2). */
+  local?: boolean;
 }
 
 @Injectable()
@@ -27,6 +33,59 @@ export class TranscodeProcessor {
   ) {}
 
   async process(job: Job<TranscodeJobData>) {
+    if (job.data.local) return this.processLocal(job.data);
+    return this.processLegacy(job);
+  }
+
+  /** وضع الاستضافة على السيرفر: قراءة من القرص وكتابة HLS على القرص من غير B2. */
+  private async processLocal(data: TranscodeJobData) {
+    const { lessonId, sourceKey } = data;
+    const sourcePath = path.join(mediaRoot(), sourceKey);
+    const lessonDir = lessonMediaDir(lessonId);
+    const tmpOut = path.join(lessonDir, 'hls-tmp');
+    const finalOut = path.join(lessonDir, 'hls');
+
+    try {
+      fs.rmSync(tmpOut, { recursive: true, force: true });
+      fs.mkdirSync(tmpOut, { recursive: true });
+
+      this.logger.log(`[${lessonId}] probing source (local)`);
+      const probe = await probeSource(sourcePath);
+      const rendition = pickSingleRendition(probe.height);
+
+      this.logger.log(`[${lessonId}] transcoding ${rendition.name}`);
+      await transcodeRendition(sourcePath, tmpOut, rendition, probe.fps);
+      writeMasterPlaylist(tmpOut, [rendition]);
+
+      // نبدّل المجلد كله مرة واحدة عشان محدش يشوف نسخة نص مكتوبة.
+      fs.rmSync(finalOut, { recursive: true, force: true });
+      fs.renameSync(tmpOut, finalOut);
+
+      await this.prisma.lesson.update({
+        where: { id: lessonId },
+        data: {
+          videoReady: true,
+          videoFailed: false,
+          durationSeconds: probe.durationSeconds,
+        },
+      });
+
+      // الملف الأصلي مش محتاجينه بعد التحويل — بنوفّر مساحة القرص.
+      fs.rmSync(sourcePath, { force: true });
+      this.logger.log(`[${lessonId}] done (local)`);
+    } catch (err) {
+      this.logger.error(`[${lessonId}] local transcode failed`, err as Error);
+      fs.rmSync(tmpOut, { recursive: true, force: true });
+      fs.rmSync(sourcePath, { force: true });
+      await this.prisma.lesson.update({
+        where: { id: lessonId },
+        data: { videoFailed: true },
+      });
+      throw err;
+    }
+  }
+
+  private async processLegacy(job: Job<TranscodeJobData>) {
     const { lessonId, sourceKey } = job.data;
     const workDir = path.join(os.tmpdir(), `lesson-${lessonId}-${Date.now()}`);
     const sourcePath = path.join(workDir, 'source');
@@ -40,7 +99,7 @@ export class TranscodeProcessor {
 
       this.logger.log(`[${lessonId}] probing source`);
       const probe = await probeSource(sourcePath);
-      const renditions = pickRenditions(probe.height);
+      const renditions = [pickSingleRendition(probe.height)];
 
       for (const rendition of renditions) {
         this.logger.log(`[${lessonId}] transcoding ${rendition.name}`);

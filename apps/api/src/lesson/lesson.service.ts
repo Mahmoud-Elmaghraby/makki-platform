@@ -4,8 +4,19 @@ import {
   NotFoundException,
   UnauthorizedException,
   ForbiddenException,
+  BadRequestException,
 } from '@nestjs/common';
 import * as fs from 'fs';
+import {
+  freeMediaBytes,
+  isLocalMediaEnabled,
+  lessonMediaDir,
+  localHlsFile,
+  mediaRoot,
+  moveFile,
+  signMediaUrl,
+} from './media-storage.util';
+import * as path from 'path';
 import { PrismaService } from '../prisma/prisma.service';
 import { B2StorageService } from '../storage/b2-storage.service';
 import { TranscodeQueueService } from '../transcode/transcode-queue.service';
@@ -89,8 +100,48 @@ export class LessonService {
       data: { storageKey, videoReady: false, videoFailed: false },
     });
 
+    if (isLocalMediaEnabled()) {
+      // حماية استقرار السيرفر: لو المساحة الفاضية قليلة نرفض الرفع بدل ما القرص يتملي.
+      const free = await freeMediaBytes();
+      const required = Math.max(5 * 1024 ** 3, file.size * 2);
+      if (free < required) {
+        await fs.promises.unlink(file.path).catch(() => {});
+        throw new BadRequestException(
+          'مساحة السيرفر مش كفاية لرفع الفيديو ده، كلّم المطوّر.',
+        );
+      }
+      await this.prisma.lesson.update({
+        where: { id: lessonId },
+        data: { storageKey, videoReady: false, videoFailed: false },
+      });
+      void this.stageLocalSourceAndEnqueue(lessonId, storageKey, file);
+      return { queued: true };
+    }
+
     void this.uploadSourceAndEnqueue(lessonId, storageKey, file);
     return { queued: true };
+  }
+
+  private async stageLocalSourceAndEnqueue(
+    lessonId: string,
+    storageKey: string,
+    file: Express.Multer.File,
+  ) {
+    try {
+      // مسح أي HLS قديم للدرس ده (إعادة رفع) قبل ما نبدأ من جديد.
+      await fs.promises.rm(path.join(lessonMediaDir(lessonId), 'hls'), {
+        recursive: true,
+        force: true,
+      });
+      await moveFile(file.path, path.join(mediaRoot(), storageKey));
+      await this.transcodeQueue.enqueue({ lessonId, sourceKey: storageKey, local: true });
+    } catch (err) {
+      this.logger.error(`[${lessonId}] staging local source failed`, err as Error);
+      await this.prisma.lesson
+        .update({ where: { id: lessonId }, data: { videoFailed: true } })
+        .catch(() => {});
+      await fs.promises.unlink(file.path).catch(() => {});
+    }
   }
 
   private async uploadSourceAndEnqueue(
@@ -129,7 +180,12 @@ export class LessonService {
   async remove(courseId: string, lessonId: string, actor: Actor) {
     await this.ownership.assertCourseOwnership(courseId, actor);
     await this.ensureLessonInCourse(courseId, lessonId);
-    await this.b2.deleteByPrefix(`lessons/${lessonId}/`);
+    await fs.promises
+      .rm(lessonMediaDir(lessonId), { recursive: true, force: true })
+      .catch(() => {});
+    await this.b2.deleteByPrefix(`lessons/${lessonId}/`).catch((err) => {
+      this.logger.warn(`[${lessonId}] B2 cleanup failed: ${(err as Error).message}`);
+    });
     return this.prisma.lesson.delete({ where: { id: lessonId } });
   }
 
@@ -193,9 +249,10 @@ export class LessonService {
 
   async getMasterManifest(lessonId: string, token: string) {
     await this.ensureVideoReady(lessonId);
-    const text = await this.b2.getObjectText(
-      `lessons/${lessonId}/hls/master.m3u8`,
-    );
+    const localMaster = localHlsFile(lessonId, 'master.m3u8');
+    const text = fs.existsSync(localMaster)
+      ? await fs.promises.readFile(localMaster, 'utf-8')
+      : await this.b2.getObjectText(`lessons/${lessonId}/hls/master.m3u8`);
     const apiBase = process.env.API_PUBLIC_URL;
 
     return rewriteMasterManifest(text, (variantLine) => {
@@ -211,6 +268,14 @@ export class LessonService {
 
     const lesson = await this.ensureVideoReady(lessonId);
     const ttlSeconds = computeSessionTtlSeconds(lesson.durationSeconds);
+    const localVariant = localHlsFile(lessonId, variant, 'index.m3u8');
+    if (fs.existsSync(localVariant)) {
+      const localText = await fs.promises.readFile(localVariant, 'utf-8');
+      return rewriteVariantManifest(localText, async (segmentLine) =>
+        signMediaUrl(`lessons/${lessonId}/hls/${variant}/${segmentLine}`, ttlSeconds),
+      );
+    }
+
     const text = await this.b2.getObjectText(
       `lessons/${lessonId}/hls/${variant}/index.m3u8`,
     );

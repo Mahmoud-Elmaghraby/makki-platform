@@ -30,6 +30,18 @@ export const RENDITION_LADDER: Rendition[] = [
   { name: '1080p', height: 1080, videoBitrateK: 4000, audioBitrateK: 128 },
 ];
 
+// جودة واحدة بس (قرار المشروع: استقرار السيرفر أولًا) — 720p بحد أقصى
+// لمعظم المحاضرات، و480p لو المصدر أصغر من كده. ده بيحدد استهلاك النطاق:
+// حوالي 0.7 جيجا لكل ساعة مشاهدة.
+export const SINGLE_RENDITIONS: Rendition[] = [
+  { name: '480p', height: 480, videoBitrateK: 800, audioBitrateK: 96 },
+  { name: '720p', height: 720, videoBitrateK: 1500, audioBitrateK: 96 },
+];
+
+export function pickSingleRendition(sourceHeight: number): Rendition {
+  return sourceHeight >= 680 ? SINGLE_RENDITIONS[1] : SINGLE_RENDITIONS[0];
+}
+
 export function probeSource(filePath: string): Promise<SourceProbe> {
   return new Promise((resolve, reject) => {
     ffmpeg.ffprobe(filePath, (err, data) => {
@@ -82,6 +94,8 @@ export function transcodeRendition(
     // which the "main" H.264 profile below cannot encode — normalize to
     // yuv420p unconditionally, which is also what virtually every browser
     // and device expects for HLS playback anyway.
+    '-threads',
+    '2',
     '-pix_fmt',
     'yuv420p',
     '-preset',
