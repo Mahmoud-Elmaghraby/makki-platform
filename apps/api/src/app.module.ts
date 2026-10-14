@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { MaintenanceService } from './maintenance.service';
 import { PrismaModule } from './prisma/prisma.module';
 import { StorageModule } from './storage/storage.module';
 import { TranscodeModule } from './transcode/transcode.module';
@@ -44,6 +45,6 @@ import { ConsultationModule } from './consultation/consultation.module';
     ConsultationModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, MaintenanceService],
 })
 export class AppModule {}

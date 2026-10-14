@@ -52,7 +52,7 @@ export class LessonAdminController {
   @UseInterceptors(
     FileInterceptor('file', {
       storage: diskStorage({ destination: os.tmpdir() }),
-      limits: { fileSize: 5 * 1024 * 1024 * 1024 }, // 5GB
+      limits: { fileSize: 2 * 1024 * 1024 * 1024 }, // 2GB (حماية مساحة السيرفر)
     }),
   )
   uploadVideo(

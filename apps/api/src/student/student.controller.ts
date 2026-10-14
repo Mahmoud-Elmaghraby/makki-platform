@@ -15,6 +15,7 @@ import { StudentService } from './student.service';
 import { RegisterStudentDto } from './dto/register-student.dto';
 import { LoginStudentDto } from './dto/login-student.dto';
 import { ChangeStudentPasswordDto } from './dto/change-student-password.dto';
+import { RateLimit, RateLimitGuard } from '../common/rate-limit.guard';
 import { StudentJwtAuthGuard } from './guards/student-jwt-auth.guard';
 import { GoogleAuthGuard } from './guards/google-auth.guard';
 import type { GoogleProfilePayload } from './strategies/google.strategy';
@@ -23,12 +24,16 @@ import type { GoogleProfilePayload } from './strategies/google.strategy';
 export class StudentController {
   constructor(private readonly studentService: StudentService) {}
 
+  @UseGuards(RateLimitGuard)
+  @RateLimit({ perIdentifier: 5, perIp: 200, windowSeconds: 3600, identifierField: 'phone' })
   @Post('register')
   @HttpCode(HttpStatus.CREATED)
   register(@Body() dto: RegisterStudentDto) {
     return this.studentService.register(dto);
   }
 
+  @UseGuards(RateLimitGuard)
+  @RateLimit({ perIdentifier: 8, perIp: 300, windowSeconds: 900, identifierField: 'phone' })
   @Post('login')
   @HttpCode(HttpStatus.OK)
   login(@Body() dto: LoginStudentDto) {

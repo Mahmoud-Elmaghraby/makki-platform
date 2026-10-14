@@ -45,6 +45,18 @@ export class TranscodeProcessor {
     const tmpOut = path.join(lessonDir, 'hls-tmp');
     const finalOut = path.join(lessonDir, 'hls');
 
+    // لو الملف الأصلي مش موجود وده job مكرر (متنفذ قبل كده)، منلمسش حالة
+    // الدرس الجاهز ومنعلّمهوش فاشل بالغلط.
+    if (!fs.existsSync(sourcePath)) {
+      const current = await this.prisma.lesson.findUnique({ where: { id: lessonId } });
+      if (current?.videoReady) return;
+      this.logger.error(`[${lessonId}] local source missing`);
+      await this.prisma.lesson
+        .update({ where: { id: lessonId }, data: { videoFailed: true } })
+        .catch(() => {});
+      return;
+    }
+
     try {
       fs.rmSync(tmpOut, { recursive: true, force: true });
       fs.mkdirSync(tmpOut, { recursive: true });

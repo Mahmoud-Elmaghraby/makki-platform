@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 import { useCourseView, usePlaybackToken, useUpdateLessonProgress, useAttachmentDownloadUrl } from "../hooks/useCourseView";
 import { useStartCheckout } from "../hooks/usePayments";
@@ -65,9 +65,28 @@ export function CourseViewPage() {
   }
 
   const playbackTokenMutate = playbackToken.mutate;
+  // مكان التشغيل الأخير وعدد مرات تجديد الجلسة — لو رابط الفيديو انتهى
+  // (طالب سايب الصفحة مفتوحة وقت طويل) بنجيب رابط جديد ونكمّل من نفس
+  // المكان بدل ما تفضل شاشة سودا. بنوقف بعد 3 محاولات عشان منعملش لوب.
+  const lastPositionRef = useRef(0);
+  const refreshCountRef = useRef(0);
+  const [playerGaveUp, setPlayerGaveUp] = useState(false);
+
+  function handleSessionExpired() {
+    if (!activeLessonId) return;
+    if (refreshCountRef.current >= 3) {
+      setPlayerGaveUp(true);
+      return;
+    }
+    refreshCountRef.current += 1;
+    playbackTokenMutate(activeLessonId);
+  }
   // أول ما درس يتحدد (سواء تلقائيًا أول ما الكورس يتحمّل، أو باختيار الطالب)
   // بنجيب رابط تشغيله من الـ API.
   useEffect(() => {
+    lastPositionRef.current = 0;
+    refreshCountRef.current = 0;
+    setPlayerGaveUp(false);
     if (activeLessonId) playbackTokenMutate(activeLessonId);
   }, [activeLessonId, playbackTokenMutate]);
 
@@ -110,18 +129,25 @@ export function CourseViewPage() {
               {playbackToken.isError && (
                 <ErrorBanner message={extractErrorMessage(playbackToken.error)} />
               )}
-              {playbackToken.data && !playbackToken.isPending && (
+              {playerGaveUp && (
+                <ErrorBanner message="حصلت مشكلة في تشغيل الفيديو. حدّث الصفحة وجرّب تاني، ولو المشكلة فضلت كلّم الدعم." />
+              )}
+              {playbackToken.data && !playbackToken.isPending && !playerGaveUp && (
                 <VideoPlayer
                   key={activeLesson.id}
+                  startPositionSeconds={lastPositionRef.current}
+                  onSessionExpired={handleSessionExpired}
                   manifestUrl={playbackToken.data.manifestUrl}
                   watermarkText={
                     student
                       ? `${student.name}${student.phone ? " · " + student.phone.slice(-4) : ""}`
                       : undefined
                   }
-                  onProgress={(positionSeconds) =>
-                    updateProgress.mutate({ lessonId: activeLesson.id, positionSeconds })
-                  }
+                  onProgress={(positionSeconds) => {
+                    lastPositionRef.current = positionSeconds;
+                    refreshCountRef.current = 0;
+                    updateProgress.mutate({ lessonId: activeLesson.id, positionSeconds });
+                  }}
                   checkpoints={checkpointsQuery.data ?? []}
                   onAnswerCheckpoint={
                     isAuthenticated

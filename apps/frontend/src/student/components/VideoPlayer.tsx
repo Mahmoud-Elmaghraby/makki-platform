@@ -17,6 +17,8 @@ export function VideoPlayer({
   checkpoints = [],
   onAnswerCheckpoint,
   watermarkText,
+  startPositionSeconds,
+  onSessionExpired,
 }: {
   manifestUrl: string;
   onProgress: (positionSeconds: number) => void;
@@ -33,10 +35,17 @@ export function VideoPlayer({
    *  التسجيل نفسه (ده مستحيل تقنيًا من غير DRM)، بس بيخلي السرقة قابلة
    *  للتتبّع فيبقى مخاطرة للطالب نفسه. */
   watermarkText?: string;
+  /** يبدأ التشغيل من الثانية دي (بعد تجديد جلسة منتهية). */
+  startPositionSeconds?: number;
+  /** بتتنادى لما رابط التشغيل ينتهي أو يفشل تحميله بشكل لا رجعة فيه —
+   *  الأب بيجيب رابط جديد ويكمّل من نفس المكان. */
+  onSessionExpired?: () => void;
 }) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const onProgressRef = useRef(onProgress);
   onProgressRef.current = onProgress;
+  const onSessionExpiredRef = useRef(onSessionExpired);
+  onSessionExpiredRef.current = onSessionExpired;
 
   const [activeCheckpoint, setActiveCheckpoint] = useState<CheckpointForViewer | null>(null);
   const [selectedOptionId, setSelectedOptionId] = useState("");
@@ -87,7 +96,32 @@ export function VideoPlayer({
     let hls: Hls | null = null;
 
     if (Hls.isSupported()) {
-      hls = new Hls();
+      hls = new Hls({
+        startPosition: startPositionSeconds && startPositionSeconds > 0 ? startPositionSeconds : -1,
+        // بافر أقل = استهلاك نطاق أقل لو الطالب وقّف الفيديو أو قفل الصفحة.
+        maxBufferLength: 30,
+        manifestLoadingMaxRetry: 3,
+        levelLoadingMaxRetry: 3,
+        fragLoadingMaxRetry: 4,
+      });
+      let networkRetries = 0;
+      let expiredNotified = false;
+      const hlsInstance = hls;
+      hls.on(Hls.Events.ERROR, (_event, data) => {
+        if (!data.fatal) return;
+        const status = (data.response as { code?: number } | undefined)?.code;
+        const authFailure = status === 401 || status === 403 || status === 410;
+        if (data.type === Hls.ErrorTypes.NETWORK_ERROR && !authFailure && networkRetries < 3) {
+          networkRetries += 1;
+          hlsInstance.startLoad();
+        } else if (data.type === Hls.ErrorTypes.MEDIA_ERROR && networkRetries < 3) {
+          networkRetries += 1;
+          hlsInstance.recoverMediaError();
+        } else if (!expiredNotified) {
+          expiredNotified = true;
+          onSessionExpiredRef.current?.();
+        }
+      });
       hls.loadSource(manifestUrl);
       hls.attachMedia(video);
     } else if (video.canPlayType("application/vnd.apple.mpegurl")) {

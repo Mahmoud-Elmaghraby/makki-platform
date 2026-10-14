@@ -93,7 +93,8 @@ export function UserFormModal({
             </Field>
             <Field label="كلمة السر المبدئية">
               <Input
-                type="text"
+                type="password"
+                autoComplete="new-password"
                 required
                 minLength={8}
                 value={password}
@@ -115,7 +116,8 @@ export function UserFormModal({
         {isEdit && (
           <Field label="كلمة سر جديدة" hint="سيبها فاضية لو مش عايز تغيّرها">
             <Input
-              type="text"
+              type="password"
+              autoComplete="new-password"
               minLength={8}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
