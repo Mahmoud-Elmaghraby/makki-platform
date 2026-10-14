@@ -10,6 +10,7 @@ import {
   UseInterceptors,
   UploadedFile,
   Req,
+  BadRequestException,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
@@ -53,6 +54,14 @@ export class LessonAdminController {
     FileInterceptor('file', {
       storage: diskStorage({ destination: os.tmpdir() }),
       limits: { fileSize: 2 * 1024 * 1024 * 1024 }, // 2GB (حماية مساحة السيرفر)
+      // نقبل ملفات الفيديو بس (بالنوع أو بالامتداد) — بنرفض أي حاجة تانية
+      // قبل ما تتخزن على القرص.
+      fileFilter: (_req, file, cb) => {
+        const okType = file.mimetype.startsWith('video/');
+        const okExt = /\.(mp4|m4v|mov|mkv|webm|avi)$/i.test(file.originalname);
+        if (okType || okExt) return cb(null, true);
+        cb(new BadRequestException('الملف لازم يكون فيديو (mp4 أو mov أو mkv أو webm).'), false);
+      },
     }),
   )
   uploadVideo(

@@ -6,6 +6,11 @@ import { AppModule } from './app.module';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
+  if (!process.env.FRONTEND_ORIGIN) {
+    // eslint-disable-next-line no-console
+    console.warn('[security] FRONTEND_ORIGIN مش متحدد — الـ CORS مفتوح لأي دومين');
+  }
+
   app.enableCors({
     origin: process.env.FRONTEND_ORIGIN?.split(',') ?? true,
     credentials: true,

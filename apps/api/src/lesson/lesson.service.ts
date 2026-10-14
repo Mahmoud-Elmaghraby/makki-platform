@@ -86,6 +86,7 @@ export class LessonService {
     file: Express.Multer.File,
     actor: Actor,
   ) {
+    if (!file) throw new BadRequestException('مفيش ملف فيديو في الطلب');
     await this.ownership.assertCourseOwnership(courseId, actor);
     await this.ensureLessonInCourse(courseId, lessonId);
 
