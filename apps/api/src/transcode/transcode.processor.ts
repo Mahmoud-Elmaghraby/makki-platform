@@ -84,6 +84,14 @@ export class TranscodeProcessor {
 
       // الملف الأصلي مش محتاجينه بعد التحويل — بنوفّر مساحة القرص.
       fs.rmSync(sourcePath, { force: true });
+
+      // لو الدرس ده كان متخزّن على B2 قبل كده (إعادة رفع)، بنمسح نسخته
+      // القديمة هناك عشان منستهلكش مساحة B2 المجانية. فشل المسح مش مشكلة.
+      try {
+        await this.storage.deleteByPrefix(`lessons/${lessonId}/`);
+      } catch (e) {
+        this.logger.warn(`[${lessonId}] old B2 cleanup skipped: ${(e as Error).message}`);
+      }
       this.logger.log(`[${lessonId}] done (local)`);
     } catch (err) {
       this.logger.error(`[${lessonId}] local transcode failed`, err as Error);
