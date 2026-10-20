@@ -32,10 +32,10 @@ export const RENDITION_LADDER: Rendition[] = [
 
 // جودة واحدة بس (قرار المشروع: استقرار السيرفر أولًا) — 720p بحد أقصى
 // لمعظم المحاضرات، و480p لو المصدر أصغر من كده. ده بيحدد استهلاك النطاق:
-// حوالي 0.7 جيجا لكل ساعة مشاهدة.
+// حوالي 0.5 جيجا لكل ساعة مشاهدة (منفذ السيرفر 200 ميجابت/ث، فبنوفّر سعة).
 export const SINGLE_RENDITIONS: Rendition[] = [
   { name: '480p', height: 480, videoBitrateK: 800, audioBitrateK: 96 },
-  { name: '720p', height: 720, videoBitrateK: 1500, audioBitrateK: 96 },
+  { name: '720p', height: 720, videoBitrateK: 1000, audioBitrateK: 80 },
 ];
 
 export function pickSingleRendition(sourceHeight: number): Rendition {
