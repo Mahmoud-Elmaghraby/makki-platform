@@ -74,7 +74,18 @@ export class LessonController {
   getVariantManifest(
     @Param('id') id: string,
     @Param('variant') variant: string,
+    @Req() req: ManifestRequest,
   ) {
-    return this.lessonService.getVariantManifest(id, variant);
+    const token = req.query.token as string;
+    return this.lessonService.getVariantManifest(id, variant, token);
+  }
+
+  // مفتاح فك تشفير AES-128 للمقاطع — نفس حماية التوكن بتاعة الـ manifest.
+  @UseGuards(HlsManifestTokenGuard)
+  @Header('Content-Type', 'application/octet-stream')
+  @Header('Cache-Control', 'no-store')
+  @Get(':id/hls/key')
+  getEncryptionKey(@Param('id') id: string) {
+    return this.lessonService.getEncryptionKey(id);
   }
 }

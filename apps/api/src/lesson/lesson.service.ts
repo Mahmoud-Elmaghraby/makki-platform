@@ -280,7 +280,16 @@ export class LessonService {
     });
   }
 
-  async getVariantManifest(lessonId: string, variant: string) {
+  async getEncryptionKey(lessonId: string): Promise<Buffer> {
+    await this.ensureVideoReady(lessonId);
+    const keyFile = localHlsFile(lessonId, 'enc.key');
+    if (!fs.existsSync(keyFile)) {
+      throw new NotFoundException('الفيديو ده مش مشفّر');
+    }
+    return fs.promises.readFile(keyFile);
+  }
+
+  async getVariantManifest(lessonId: string, variant: string, token?: string) {
     if (!VARIANT_NAME_PATTERN.test(variant)) {
       throw new NotFoundException('الجودة دي مش موجودة');
     }
@@ -289,7 +298,12 @@ export class LessonService {
     const ttlSeconds = computeSessionTtlSeconds(lesson.durationSeconds);
     const localVariant = localHlsFile(lessonId, variant, 'index.m3u8');
     if (fs.existsSync(localVariant)) {
-      const localText = await fs.promises.readFile(localVariant, 'utf-8');
+      let localText = await fs.promises.readFile(localVariant, 'utf-8');
+      // الدروس المشفّرة: نحوّل رابط المفتاح لرابطنا المحمي بالتوكن.
+      if (token && localText.includes('URI="enc.key"')) {
+        const keyUrl = `${process.env.API_PUBLIC_URL}/lessons/${lessonId}/hls/key?token=${token}`;
+        localText = localText.replace('URI="enc.key"', `URI="${keyUrl}"`);
+      }
       return rewriteVariantManifest(localText, async (segmentLine) =>
         signMediaUrl(`lessons/${lessonId}/hls/${variant}/${segmentLine}`, ttlSeconds),
       );

@@ -79,6 +79,8 @@ export function transcodeRendition(
   outDir: string,
   rendition: Rendition,
   fps: number,
+  /** مسار ملف key-info لتشفير AES-128 (اختياري). */
+  keyInfoPath?: string,
 ): Promise<void> {
   const renditionDir = path.join(outDir, rendition.name);
   fs.mkdirSync(renditionDir, { recursive: true });
@@ -129,6 +131,9 @@ export function transcodeRendition(
     '-hls_segment_filename',
     toFfmpegPath(path.join(renditionDir, 'seg_%03d.ts')),
   ];
+  if (keyInfoPath) {
+    outputOptions.push('-hls_key_info_file', toFfmpegPath(keyInfoPath));
+  }
 
   return new Promise((resolve, reject) => {
     ffmpeg(inputPath)

@@ -3,6 +3,7 @@ import type { Job } from 'bullmq';
 import * as fs from 'fs';
 import * as os from 'os';
 import * as path from 'path';
+import { randomBytes } from 'crypto';
 import { PrismaService } from '../prisma/prisma.service';
 import { B2StorageService } from '../storage/b2-storage.service';
 import {
@@ -66,7 +67,21 @@ export class TranscodeProcessor {
       const rendition = pickSingleRendition(probe.height);
 
       this.logger.log(`[${lessonId}] transcoding ${rendition.name}`);
-      await transcodeRendition(sourcePath, tmpOut, rendition, probe.fps);
+      // تشفير AES-128: المفتاح بيتحط جوه hls-tmp (فبيتبدّل مع المقاطع مرة
+      // واحدة) وملف key-info برّه المجلد عشان مايتقدّمش.
+      const keyPath = path.join(tmpOut, 'enc.key');
+      const keyInfoPath = path.join(lessonDir, 'enc.keyinfo');
+      fs.writeFileSync(keyPath, randomBytes(16));
+      fs.writeFileSync(keyInfoPath, `enc.key\n${keyPath}\n`);
+
+      await transcodeRendition(
+        sourcePath,
+        tmpOut,
+        rendition,
+        probe.fps,
+        keyInfoPath,
+      );
+      fs.rmSync(keyInfoPath, { force: true });
       writeMasterPlaylist(tmpOut, [rendition]);
 
       // نبدّل المجلد كله مرة واحدة عشان محدش يشوف نسخة نص مكتوبة.
