@@ -3,7 +3,7 @@
 # بيعرض آخر 50 تشغيل للطالب (الدرس، الـ IP، الجهاز، الوقت).
 set -euo pipefail
 Q="${1:?usage: trace-student.sh <name-or-phone-fragment>}"
-sudo -u postgres psql "${DB_NAME:-makki}" -c "
+sudo -u postgres psql "${DB_NAME:-makki_db}" -c "
 SELECT s.name, s.phone, l.title AS lesson, p.ip, left(p.\"userAgent\",60) AS ua, p.\"createdAt\"
 FROM \"PlaybackLog\" p
 JOIN \"Student\" s ON s.id = p.\"studentId\"
