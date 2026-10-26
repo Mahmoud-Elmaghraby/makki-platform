@@ -37,7 +37,7 @@ apiClient.interceptors.response.use(
     if (error.response?.status === 401 && !isAuthRequest) {
       clearToken();
       if (!window.location.pathname.startsWith("/student/login")) {
-        window.location.href = "/student/login";
+        window.location.href = "/student/login?reason=session";
       }
     }
     return Promise.reject(error);

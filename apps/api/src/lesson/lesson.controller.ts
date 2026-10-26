@@ -35,7 +35,16 @@ export class LessonController {
     @Param('id') id: string,
     @Req() req: OptionalStudentRequest,
   ) {
-    return this.lessonService.getPlaybackToken(id, req.user?.id ?? null);
+    return this.lessonService.getPlaybackToken(id, req.user?.id ?? null, {
+      ip:
+        (req.headers['x-real-ip'] as string | undefined) ??
+        req.ip ??
+        undefined,
+      userAgent: (req.headers['user-agent'] as string | undefined)?.slice(
+        0,
+        300,
+      ),
+    });
   }
 
   @UseGuards(StudentJwtAuthGuard)

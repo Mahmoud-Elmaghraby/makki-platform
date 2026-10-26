@@ -68,6 +68,9 @@ export function LoginPage() {
           />
         </Field>
 
+        {!error && new URLSearchParams(location.search).get("reason") === "session" && (
+          <ErrorBanner message="انتهت الجلسة أو تم تسجيل الدخول من جهاز آخر. سجّل دخولك تاني." />
+        )}
         {error && <ErrorBanner message={error} />}
 
         <Button type="submit" className="w-full" loading={loading}>

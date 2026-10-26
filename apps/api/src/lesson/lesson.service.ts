@@ -231,11 +231,29 @@ export class LessonService {
     return lesson;
   }
 
-  async getPlaybackToken(lessonId: string, studentId: string | null) {
+  async getPlaybackToken(
+    lessonId: string,
+    studentId: string | null,
+    client?: { ip?: string; userAgent?: string },
+  ) {
     const lesson = await this.assertViewerAccess(lessonId, studentId);
 
     if (!lesson.videoReady) {
       throw new NotFoundException('الفيديو لسه مش جاهز');
+    }
+
+    if (studentId) {
+      // سجل للتتبع — لو فشل مايوقفش التشغيل.
+      void this.prisma.playbackLog
+        .create({
+          data: {
+            studentId,
+            lessonId: lesson.id,
+            ip: client?.ip,
+            userAgent: client?.userAgent,
+          },
+        })
+        .catch(() => undefined);
     }
 
     const ttlSeconds = computeSessionTtlSeconds(lesson.durationSeconds);

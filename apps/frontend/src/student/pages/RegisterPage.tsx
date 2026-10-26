@@ -81,6 +81,14 @@ export function RegisterPage() {
           />
         </Field>
 
+        <p className="text-xs leading-6 text-(--color-muted)">
+          بإنشاء الحساب إنت موافق على{" "}
+          <Link to="/terms" target="_blank" className="font-medium text-(--color-royal-light)">
+            الشروط والأحكام
+          </Link>
+          ، وبتشمل منع تسجيل الشاشة أو مشاركة الفيديوهات أو الحساب، وأي مخالفة بتعرّضك لإيقاف الحساب والمساءلة القانونية.
+        </p>
+
         {error && <ErrorBanner message={error} />}
 
         <Button type="submit" className="w-full" loading={loading}>

@@ -60,6 +60,8 @@ model Student {
   googleId       String?          @unique
   passwordHash   String?
   isActive       Boolean          @default(true)
+  // معرّف الجلسة الحالية — تسجيل الدخول من جهاز تاني بيغيّره فالجلسة القديمة بتتفصل.
+  sessionId      String?
   enrollments    Enrollment[]
   examAttempts   ExamAttempt[]
   lessonProgress LessonProgress[]
@@ -457,4 +459,17 @@ model Notification {
 
   @@index([audience, isRead, createdAt])
   @@index([studentId, isRead, createdAt])
+}
+
+// سجل تشغيل الفيديو — لتتبّع التسريب (مين شغّل أنهي درس ومن أنهي IP وجهاز).
+model PlaybackLog {
+  id        String   @id @default(uuid())
+  studentId String
+  lessonId  String
+  ip        String?
+  userAgent String?
+  createdAt DateTime @default(now())
+
+  @@index([studentId, createdAt])
+  @@index([lessonId, createdAt])
 }

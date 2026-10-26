@@ -1,3 +1,4 @@
+import { randomUUID } from 'crypto';
 import {
   Injectable,
   ConflictException,
@@ -267,10 +268,17 @@ export class StudentService {
   }
 
   private async signToken(student: { id: string; phone: string | null }) {
+    // جلسة واحدة لكل حساب: كل تسجيل دخول بيولّد sid جديد وبيلغي القديم.
+    const sid = randomUUID();
+    await this.prisma.student.update({
+      where: { id: student.id },
+      data: { sessionId: sid },
+    });
     const payload = {
       sub: student.id,
       phone: student.phone,
       type: 'student' as const,
+      sid,
     };
     return {
       access_token: await this.jwtService.signAsync(payload),

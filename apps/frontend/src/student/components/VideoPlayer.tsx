@@ -253,13 +253,36 @@ export function VideoPlayer({
         className="aspect-video w-full select-none rounded-xl bg-black"
       />
 
+      {/* علامة ثابتة باسم الموقع — بتظهر دايمًا حتى في المعاينة المجانية. */}
+      <div
+        className="pointer-events-none absolute left-1/2 top-3 -translate-x-1/2 select-none rounded bg-black/30 px-2 py-0.5 text-[11px] font-semibold text-white/60"
+        dir="ltr"
+      >
+        mekkylaw.com
+      </div>
+
       {watermarkText && (
-        <div
-          className={`pointer-events-none absolute ${WATERMARK_POSITIONS[watermarkPosIndex]} rounded bg-black/30 px-2 py-1 text-[11px] font-medium text-white/70 backdrop-blur-[1px] transition-all duration-1000`}
-          dir="ltr"
-        >
-          {watermarkText}
-        </div>
+        <>
+          {/* طبقة خفيفة مكررة على الشاشة كلها (مائلة) — صعب قصّها أو إخفاؤها. */}
+          <div
+            className="pointer-events-none absolute inset-0 flex -rotate-[18deg] scale-125 select-none flex-wrap content-around justify-around overflow-hidden"
+            dir="ltr"
+            aria-hidden
+          >
+            {Array.from({ length: 24 }).map((_, i) => (
+              <span key={i} className="px-6 py-8 text-sm font-semibold text-white/15">
+                {watermarkText}
+              </span>
+            ))}
+          </div>
+          {/* العلامة المتحركة الواضحة */}
+          <div
+            className={`pointer-events-none absolute select-none ${WATERMARK_POSITIONS[watermarkPosIndex]} rounded bg-black/45 px-2.5 py-1 text-xs font-semibold text-white/90 transition-all duration-1000`}
+            dir="ltr"
+          >
+            {watermarkText}
+          </div>
+        </>
       )}
 
       {activeCheckpoint && (

@@ -7,6 +7,7 @@ type StudentJwtPayload = {
   sub: string;
   phone: string | null;
   type: string;
+  sid?: string;
 };
 
 @Injectable()
@@ -33,6 +34,13 @@ export class StudentJwtStrategy extends PassportStrategy(
 
     if (!student || !student.isActive) {
       throw new UnauthorizedException('الطالب مش موجود');
+    }
+
+    // الجلسة لازم تطابق آخر تسجيل دخول (جهاز واحد في نفس الوقت).
+    if (student.sessionId && payload.sid !== student.sessionId) {
+      throw new UnauthorizedException(
+        'تم تسجيل الدخول من جهاز آخر. سجّل دخولك تاني.',
+      );
     }
 
     return { id: student.id, phone: student.phone, type: 'student' as const };
