@@ -9,6 +9,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { CreateCourseDto, UpdateCourseDto } from './dto/course.dto';
 import { EnrollmentStatus, Role } from '../generated/prisma/enums';
 import { SectionService, SectionTreeNode } from '../section/section.service';
+import { lessonMediaDir } from '../lesson/media-storage.util';
 import { B2StorageService } from '../storage/b2-storage.service';
 import { buildCoverImageUrl } from './cover-image.util';
 import type { Lesson, Attachment, Exam } from '../generated/prisma/client';
@@ -272,7 +273,41 @@ export class CourseService {
   async remove(id: string, actor: Actor) {
     const course = await this.ensureExists(id);
     this.assertOwnership(course.instructorId, actor);
-    return this.prisma.course.delete({ where: { id } });
+
+    // ممنوع نحذف أي كورس عليه بيانات — لازم تتشال الأول بشكل يدوي ومقصود.
+    const [enrollments, payments, certificates, examAttempts, progress] =
+      await Promise.all([
+        this.prisma.enrollment.count({ where: { courseId: id } }),
+        this.prisma.payment.count({ where: { courseId: id } }),
+        this.prisma.certificate.count({ where: { courseId: id } }),
+        this.prisma.examAttempt.count({ where: { exam: { courseId: id } } }),
+        this.prisma.lessonProgress.count({ where: { lesson: { courseId: id } } }),
+      ]);
+    const blockers: string[] = [];
+    if (enrollments) blockers.push(`${enrollments} اشتراك`);
+    if (payments) blockers.push(`${payments} عملية دفع`);
+    if (certificates) blockers.push(`${certificates} شهادة`);
+    if (examAttempts) blockers.push(`${examAttempts} محاولة امتحان`);
+    if (progress) blockers.push(`${progress} سجل تقدّم مشاهدة`);
+    if (blockers.length > 0) {
+      throw new ConflictException(
+        `مينفعش تمسح الكورس ده لأن عليه بيانات: ${blockers.join('، ')}. امسح البيانات دي الأول وبعدين جرّب تاني.`,
+      );
+    }
+
+    const lessons = await this.prisma.lesson.findMany({
+      where: { courseId: id },
+      select: { id: true },
+    });
+    const deleted = await this.prisma.course.delete({ where: { id } });
+
+    // تنضيف ملفات الفيديو بتاعة الدروس من القرص (فشلها مش مشكلة).
+    for (const l of lessons) {
+      await fs.promises
+        .rm(lessonMediaDir(l.id), { recursive: true, force: true })
+        .catch(() => undefined);
+    }
+    return deleted;
   }
 
   /** بيستخدمها section/lesson/exam/attachment services عشان يتأكدوا إن
