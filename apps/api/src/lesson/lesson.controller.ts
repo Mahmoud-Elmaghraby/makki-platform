@@ -7,6 +7,7 @@ import {
   Header,
   UseGuards,
   Req,
+  StreamableFile,
 } from '@nestjs/common';
 import { Request } from 'express';
 import { LessonService } from './lesson.service';
@@ -86,6 +87,9 @@ export class LessonController {
   @Header('Cache-Control', 'no-store')
   @Get(':id/hls/key')
   getEncryptionKey(@Param('id') id: string) {
-    return this.lessonService.getEncryptionKey(id);
+    return this.lessonService.getEncryptionKey(id).then(
+      // StreamableFile عشان Nest مايحوّلش الـ Buffer لـ JSON.
+      (key) => new StreamableFile(key),
+    );
   }
 }
