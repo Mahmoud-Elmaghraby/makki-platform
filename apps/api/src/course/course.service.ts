@@ -3,6 +3,7 @@ import {
   NotFoundException,
   ConflictException,
   ForbiddenException,
+  BadRequestException,
 } from '@nestjs/common';
 import * as fs from 'fs';
 import { PrismaService } from '../prisma/prisma.service';
@@ -308,6 +309,55 @@ export class CourseService {
         .catch(() => undefined);
     }
     return deleted;
+  }
+
+  /**
+   * مسح مقصود لبيانات الطلاب المرتبطة بكورس (اشتراكات، تقدّم، امتحانات،
+   * شهادات) تمهيدًا لحذف الكورس. المدفوعات عمرها ما بتتمسح: لو الكورس
+   * عليه أي عملية دفع بنرفض. لازم الأدمن يكتب اسم الكورس بنفسه للتأكيد.
+   */
+  async purgeData(id: string, confirmTitle: string | undefined) {
+    const course = await this.ensureExists(id);
+    if ((confirmTitle ?? '').trim() !== course.title.trim()) {
+      throw new BadRequestException(
+        'اسم الكورس المكتوب مش مطابق. اكتب الاسم بالظبط زي ما هو للتأكيد.',
+      );
+    }
+
+    const payments = await this.prisma.payment.count({
+      where: { courseId: id },
+    });
+    if (payments > 0) {
+      throw new ConflictException(
+        `الكورس ده عليه ${payments} عملية دفع، والسجلات المالية مبتتمسحش. تواصل مع المطوّر لو محتاج تتصرف فيه.`,
+      );
+    }
+
+    const [responses, progress, attempts, certificates, enrollments] =
+      await this.prisma.$transaction([
+        this.prisma.checkpointResponse.deleteMany({
+          where: { checkpoint: { lesson: { courseId: id } } },
+        }),
+        this.prisma.lessonProgress.deleteMany({
+          where: { lesson: { courseId: id } },
+        }),
+        this.prisma.examAttempt.deleteMany({
+          where: { exam: { courseId: id } },
+        }),
+        this.prisma.certificate.deleteMany({ where: { courseId: id } }),
+        this.prisma.enrollment.deleteMany({ where: { courseId: id } }),
+      ]);
+
+    // ملفات الشهادات على B2 — فشل المسح مش مشكلة.
+    await this.b2.deleteByPrefix(`certificates/${id}/`).catch(() => undefined);
+
+    return {
+      enrollments: enrollments.count,
+      progress: progress.count,
+      examAttempts: attempts.count,
+      certificates: certificates.count,
+      checkpointResponses: responses.count,
+    };
   }
 
   /** بيستخدمها section/lesson/exam/attachment services عشان يتأكدوا إن

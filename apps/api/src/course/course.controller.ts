@@ -87,6 +87,17 @@ export class CourseController {
     return this.courseService.remove(id, req.user);
   }
 
+  // مسح بيانات الطلاب المرتبطة بالكورس (مش المدفوعات) — أدمن/مدير بس.
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN, Role.MANAGER)
+  @Post(':id/purge-data')
+  purgeData(
+    @Param('id') id: string,
+    @Body() body: { confirmTitle?: string },
+  ) {
+    return this.courseService.purgeData(id, body?.confirmTitle);
+  }
+
   // رفع صورة غلاف الكورس — بتعدي على السيرفر بتاعنا (multer) وبعدين السيرفر
   // هو اللي يرفعها لـ B2 من غير أي رفع مباشر من المتصفح (كان بيتعمل بـ
   // presigned POST قبل كده، لكن B2 بترفض preflight الـ CORS بتاعه بـ 403).

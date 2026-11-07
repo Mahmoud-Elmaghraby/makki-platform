@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import { Plus, Pencil, Trash2, Eye, EyeOff, Search } from "lucide-react";
+import { Plus, Pencil, Trash2, Eraser, Eye, EyeOff, Search } from "lucide-react";
 import {
   Button,
   Card,
@@ -17,6 +17,7 @@ import {
   useCreateCourse,
   useUpdateCourse,
   useDeleteCourse,
+  usePurgeCourseData,
 } from "../hooks/useCourses";
 import { useToast } from "../components/ToastContext";
 import { extractErrorMessage } from "../lib/apiClient";
@@ -28,6 +29,7 @@ function CourseRow({ course, showFacultyColumn }: { course: Course; showFacultyC
   const [editOpen, setEditOpen] = useState(false);
   const updateCourse = useUpdateCourse(course.id);
   const deleteCourse = useDeleteCourse();
+  const purgeData = usePurgeCourseData();
 
   async function togglePublish() {
     try {
@@ -43,6 +45,21 @@ function CourseRow({ course, showFacultyColumn }: { course: Course; showFacultyC
     try {
       await deleteCourse.mutateAsync(course.id);
       toast.success("تم حذف الكورس");
+    } catch (err) {
+      toast.error(extractErrorMessage(err));
+    }
+  }
+
+  async function handlePurge() {
+    const typed = window.prompt(
+      `ده هيمسح نهائيًا كل بيانات الطلاب في "${course.title}" (الاشتراكات، التقدّم، الامتحانات، الشهادات). المدفوعات مبتتمسحش.\n\nللتأكيد اكتب اسم الكورس بالظبط:`,
+    );
+    if (typed === null) return;
+    try {
+      const r = await purgeData.mutateAsync({ courseId: course.id, confirmTitle: typed });
+      toast.success(
+        `تم المسح: ${r.enrollments} اشتراك، ${r.progress} تقدّم، ${r.examAttempts} محاولة امتحان، ${r.certificates} شهادة`,
+      );
     } catch (err) {
       toast.error(extractErrorMessage(err));
     }
@@ -93,6 +110,13 @@ function CourseRow({ course, showFacultyColumn }: { course: Course; showFacultyC
               className="rounded-lg p-2 text-(--color-muted) hover:bg-(--color-paper-alt) hover:text-(--color-navy)"
             >
               <Pencil className="h-4 w-4" />
+            </button>
+            <button
+              onClick={handlePurge}
+              title="مسح بيانات الطلاب"
+              className="rounded-lg p-2 text-(--color-muted) hover:bg-amber-50 hover:text-amber-600"
+            >
+              <Eraser className="h-4 w-4" />
             </button>
             <button
               onClick={handleDelete}

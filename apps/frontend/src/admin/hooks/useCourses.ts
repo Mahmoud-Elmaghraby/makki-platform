@@ -79,6 +79,26 @@ export function useDeleteCourse() {
   });
 }
 
+export function usePurgeCourseData() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (vars: { courseId: string; confirmTitle: string }) => {
+      const { data } = await apiClient.post(`/courses/${vars.courseId}/purge-data`, {
+        confirmTitle: vars.confirmTitle,
+      });
+      return data as {
+        enrollments: number;
+        progress: number;
+        examAttempts: number;
+        certificates: number;
+      };
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["courses", "admin"] });
+    },
+  });
+}
+
 // ============================================================
 // رفع صورة غلاف الكورس — بيعدي على الـ API بتاعنا (نفس الدومين، مفيش CORS)
 // وهو اللي يرفعها لـ B2 من جواه. خطوة واحدة بس، من غير presigned URL ولا
