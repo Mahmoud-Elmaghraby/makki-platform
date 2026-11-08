@@ -58,3 +58,28 @@ export function useRevokeEnrollment() {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["enrollments"] }),
   });
 }
+
+export function useCreateStudent() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (input: { name: string; phone: string; email?: string }) => {
+      const { data } = await apiClient.post<{ student: Student; temporaryPassword: string }>(
+        "/students",
+        input,
+      );
+      return data;
+    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["students"] }),
+  });
+}
+
+export function useResetStudentPassword() {
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const { data } = await apiClient.post<{ temporaryPassword: string }>(
+        `/students/${id}/reset-password`,
+      );
+      return data;
+    },
+  });
+}
